@@ -3,9 +3,11 @@ package com.system.internship.services;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.system.internship.domain.*;
 import com.system.internship.dto.*;
 import com.system.internship.enums.GenderEnum;
+import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.*;
 import com.system.internship.util.PasswordGenerator;
 
@@ -34,12 +37,16 @@ public class AdministratorService {
   @Autowired
   private OpenPasswordRepository openPasswordRepository;
 
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
   public RegisterResponseDto register(RegisterRequestBodyDto body) {
     RegisterResponseDto registerResponseDto = new RegisterResponseDto();
     // get the url webservice you need to request from the body
     try {
       checkBodyIntegrity(body); // check if the body is correct
       URI uri = getUriFromBody(body);
+
       if (body.getAmount().equals(RegisterRequestBodyDto.AmountEnum.BATCH)) {
         // might use an abstract factory later
         if (body.getTypeUser().equals(RegisterRequestBodyDto.TypeUserEnum.STAFF)) {
@@ -57,7 +64,7 @@ public class AdministratorService {
           List<OpenPassword> generatedOpenPasswords = new ArrayList<>();
           unRegisteredStaffs.forEach(staff -> {
             String generatedPassword = PasswordGenerator.generateRandomPassword(8);
-            staff.setPassword(generatedPassword);
+            staff.setPassword(passwordEncoder.encode(generatedPassword));
             OpenPassword op = OpenPassword.builder().password(generatedPassword).account(staff).build();
             generatedOpenPasswords.add(op);
           });
@@ -81,7 +88,7 @@ public class AdministratorService {
           List<OpenPassword> generatedOpenPasswords = new ArrayList<>();
           unRegisteredStudents.forEach(student -> {
             String generatedPassword = PasswordGenerator.generateRandomPassword(8);
-            student.setPassword(generatedPassword);
+            student.setPassword(passwordEncoder.encode(generatedPassword));
             OpenPassword op = OpenPassword.builder().password(generatedPassword).account(student).build();
             generatedOpenPasswords.add(op);
           });
@@ -99,7 +106,7 @@ public class AdministratorService {
           Staff staff = convertToStaff(staffDto);
           if (!staffRepository.findByUsername(staff.getUsername()).isPresent()) {
             String generatedPassword = PasswordGenerator.generateRandomPassword(8);
-            staff.setPassword(generatedPassword);
+            staff.setPassword(passwordEncoder.encode(generatedPassword));
             OpenPassword op = OpenPassword.builder().password(generatedPassword).account(staff).build();
             staffRepository.save(staff);
             openPasswordRepository.save(op);
@@ -117,7 +124,7 @@ public class AdministratorService {
           Student student = convertToStudent(studentDto);
           if (!studentRepository.findByUsername(student.getUsername()).isPresent()) {
             String generatedPassword = PasswordGenerator.generateRandomPassword(8);
-            student.setPassword(generatedPassword);
+            student.setPassword(passwordEncoder.encode(generatedPassword));
             OpenPassword op = OpenPassword.builder().password(generatedPassword).account(student).build();
             studentRepository.save(student);
             openPasswordRepository.save(op);
@@ -215,6 +222,7 @@ public class AdministratorService {
         .lastName(studentDto.getLastName())
         .username(studentDto.getUsername())
         .gender(GenderEnum.fromName(studentDto.getGender()))
+        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STUDENT).build()))
         .department(studentDto.getDepartment())
         .stream(studentDto.getStream())
         .grade(studentDto.getGrade());
@@ -231,6 +239,7 @@ public class AdministratorService {
         .lastName(staffDto.getLastName())
         .username(staffDto.getUsername())
         .gender(GenderEnum.fromName(staffDto.getGender()))
+        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STAFF).build()))
         .department(staffDto.getDepartment())
         .courseLoad(staffDto.getCourseLoad());
     if (staffDto.getEmail() != null && !staffDto.getEmail().equals("")) {
@@ -250,7 +259,7 @@ public class AdministratorService {
       Staff staff = convertFromCustomToStaff(registerDto);
       if (!staffRepository.findByUsername(staff.getUsername()).isPresent()) {
         String generatedPassword = PasswordGenerator.generateRandomPassword(8);
-        staff.setPassword(generatedPassword);
+        staff.setPassword(passwordEncoder.encode(generatedPassword));
         OpenPassword op = OpenPassword.builder().password(generatedPassword).account(staff).build();
         staffRepository.save(staff);
         openPasswordRepository.save(op);
@@ -267,7 +276,7 @@ public class AdministratorService {
       Student student = convertFromCustomToStudent(registerDto);
       if (!studentRepository.findByUsername(student.getUsername()).isPresent()) {
         String generatedPassword = PasswordGenerator.generateRandomPassword(8);
-        student.setPassword(generatedPassword);
+        student.setPassword(passwordEncoder.encode(generatedPassword));
         OpenPassword op = OpenPassword.builder().password(generatedPassword).account(student).build();
         studentRepository.save(student);
         openPasswordRepository.save(op);
@@ -291,6 +300,7 @@ public class AdministratorService {
         .lastName(registerDto.getLastName())
         .username(registerDto.getUsername())
         .gender(GenderEnum.fromName(registerDto.getGender()))
+        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STAFF).build()))
         .department(registerDto.getDepartment())
         .courseLoad(registerDto.getCourseLoad());
     if (registerDto.getEmail() != null && !registerDto.getEmail().equals("")) {
@@ -307,6 +317,7 @@ public class AdministratorService {
         .lastName(registerDto.getLastName())
         .username(registerDto.getUsername())
         .gender(GenderEnum.fromName(registerDto.getGender()))
+        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STUDENT).build()))
         .department(registerDto.getDepartment())
         .stream(registerDto.getStream())
         .grade(registerDto.getGrade());

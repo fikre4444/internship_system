@@ -1,16 +1,21 @@
 package com.system.internship.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.system.internship.domain.Account;
 import com.system.internship.dto.RegisterRequestBodyDto;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.dto.RegisterResponseDto;
+import com.system.internship.repository.AccountRepository;
 import com.system.internship.services.AdministratorService;
 
 @RestController
