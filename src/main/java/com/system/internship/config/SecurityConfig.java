@@ -34,7 +34,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(customizer -> customizer
             .requestMatchers("/api/student/hello").hasRole("STUDENT")
             .requestMatchers("/api/staff/hello").hasRole("STAFF")
-            .requestMatchers("/api/admin/register", "/api/auth/login")
+            .requestMatchers("/api/admin/register", "/api/auth/login", "/api/admin/registerCustom")
             .permitAll())
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -1,5 +1,7 @@
 package com.system.internship.dto;
 
+import com.system.internship.enums.TypeUserEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RegisterRequestCustomBodyDto {
 
-  private TypeOfUser typeOfUser; // whether staff or student
+  private TypeUserEnum typeUser; // whether staff or student
 
   private String firstName;
   private String lastName;
@@ -24,9 +26,5 @@ public class RegisterRequestCustomBodyDto {
   private Float courseLoad;
   private String stream;
   private Float grade;
-
-  public enum TypeOfUser {
-    STAFF, STUDENT
-  }
 
 }

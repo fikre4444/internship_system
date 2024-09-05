@@ -1,5 +1,7 @@
 package com.system.internship.dto;
 
+import com.system.internship.enums.TypeUserEnum;
+
 import lombok.Data;
 
 @Data
@@ -11,10 +13,6 @@ public class RegisterRequestBodyDto {
 
   public enum AmountEnum {
     BATCH, SINGLE
-  }
-
-  public enum TypeUserEnum {
-    STAFF, STUDENT
   }
 
 }
