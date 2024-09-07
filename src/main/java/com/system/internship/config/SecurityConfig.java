@@ -30,12 +30,14 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http = http.csrf(customzer -> customzer.disable())
+        .cors(customizer -> customizer.disable())
         .httpBasic(Customizer.withDefaults())
         .authorizeHttpRequests(customizer -> customizer
             .requestMatchers("/api/student/hello").hasRole("STUDENT")
             .requestMatchers("/api/staff/hello").hasRole("STAFF")
-            .requestMatchers("/api/admin/register", "/api/auth/login", "/api/admin/registerCustom")
-            .permitAll())
+            .requestMatchers("/api/admin/**", "/api/auth/login")
+            .permitAll()
+            .requestMatchers("/api/email/**").permitAll())
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

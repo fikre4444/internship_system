@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,7 +20,9 @@ import com.system.internship.dto.StaffDto;
 import com.system.internship.enums.GenderEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.OpenPasswordRepository;
+import com.system.internship.repository.RoleRepository;
 import com.system.internship.repository.StaffRepository;
+import com.system.internship.services.RoleService;
 import com.system.internship.util.PasswordGenerator;
 
 import lombok.val;
@@ -30,13 +33,16 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
   private final StaffRepository staffRepository;
   private final PasswordEncoder passwordEncoder;
   private final OpenPasswordRepository openPasswordRepository;
+  private final RoleService roleService;
 
   public StaffRegistrationStrategy(RestTemplate restTemplate, StaffRepository staffRepository,
-      PasswordEncoder passwordEncoder, OpenPasswordRepository openPasswordRepository) {
+      PasswordEncoder passwordEncoder, OpenPasswordRepository openPasswordRepository,
+      RoleService roleService) {
     this.restTemplate = restTemplate;
     this.staffRepository = staffRepository;
     this.passwordEncoder = passwordEncoder;
     this.openPasswordRepository = openPasswordRepository;
+    this.roleService = roleService;
   }
 
   @Override
@@ -101,8 +107,8 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
         .firstName(staffDto.getFirstName())
         .lastName(staffDto.getLastName())
         .username(staffDto.getUsername())
+        .roles(Set.of(roleService.getRole(RoleEnum.ROLE_STAFF)))
         .gender(GenderEnum.fromName(staffDto.getGender()))
-        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STAFF).build()))
         .department(staffDto.getDepartment())
         .courseLoad(staffDto.getCourseLoad());
     if (staffDto.getEmail() != null && !staffDto.getEmail().equals("")) {
@@ -118,7 +124,7 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
         .lastName(registerDto.getLastName())
         .username(registerDto.getUsername())
         .gender(GenderEnum.fromName(registerDto.getGender()))
-        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STAFF).build()))
+        .roles(Set.of(roleService.getRole(RoleEnum.ROLE_STAFF)))
         .department(registerDto.getDepartment())
         .courseLoad(registerDto.getCourseLoad());
     if (registerDto.getEmail() != null && !registerDto.getEmail().equals("")) {

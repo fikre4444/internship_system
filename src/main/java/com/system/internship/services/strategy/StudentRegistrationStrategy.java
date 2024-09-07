@@ -20,23 +20,27 @@ import com.system.internship.enums.GenderEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.OpenPasswordRepository;
 import com.system.internship.repository.StudentRepository;
+import com.system.internship.services.RoleService;
 import com.system.internship.util.PasswordGenerator;
 
 import lombok.val;
 
 public class StudentRegistrationStrategy implements AccountRegistrationStrategy {
 
-  private RestTemplate restTemplate;
-  private StudentRepository studentRepository;
-  private OpenPasswordRepository openPasswordRepository;
-  private PasswordEncoder passwordEncoder;
+  private final RestTemplate restTemplate;
+  private final StudentRepository studentRepository;
+  private final OpenPasswordRepository openPasswordRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final RoleService roleService;
 
   public StudentRegistrationStrategy(RestTemplate restTemplate, StudentRepository studentRepository,
-      PasswordEncoder passwordEncoder, OpenPasswordRepository openPasswordRepository) {
+      PasswordEncoder passwordEncoder, OpenPasswordRepository openPasswordRepository,
+      RoleService roleService) {
     this.restTemplate = restTemplate;
     this.studentRepository = studentRepository;
     this.passwordEncoder = passwordEncoder;
     this.openPasswordRepository = openPasswordRepository;
+    this.roleService = roleService;
   }
 
   @Override
@@ -104,7 +108,7 @@ public class StudentRegistrationStrategy implements AccountRegistrationStrategy 
         .lastName(studentDto.getLastName())
         .username(studentDto.getUsername())
         .gender(GenderEnum.fromName(studentDto.getGender()))
-        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STUDENT).build()))
+        .roles(Set.of(roleService.getRole(RoleEnum.ROLE_STUDENT)))
         .department(studentDto.getDepartment())
         .stream(studentDto.getStream())
         .grade(studentDto.getGrade());
@@ -121,7 +125,7 @@ public class StudentRegistrationStrategy implements AccountRegistrationStrategy 
         .lastName(registerDto.getLastName())
         .username(registerDto.getUsername())
         .gender(GenderEnum.fromName(registerDto.getGender()))
-        .roles(Set.of(Role.builder().name(RoleEnum.ROLE_STUDENT).build()))
+        .roles(Set.of(roleService.getRole(RoleEnum.ROLE_STUDENT)))
         .department(registerDto.getDepartment())
         .stream(registerDto.getStream())
         .grade(registerDto.getGrade());

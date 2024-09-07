@@ -5,17 +5,26 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.system.internship.domain.Account;
+import com.system.internship.repository.AccountRepository;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
+
+  @Autowired
+  private AccountRepository accountRepository;
 
   private String secretKey = "T+vwWyP3VuV7nFWQtup1eWkNWm9863s2d/Atx20gG7o=";
 
@@ -33,6 +42,13 @@ public class JwtService {
 
   public String generateToken(String username) {
     Map<String, Object> claims = new HashMap<>();
+
+    //this is to add the roles of the person
+    Optional<Account> account = accountRepository.findByUsername(username);
+    if (account.isPresent()) {
+      claims.put("roles", account.get().getAuthorities().stream()
+          .map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList()));
+    }
 
     return Jwts.builder()
         .claims()
