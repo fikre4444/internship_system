@@ -31,12 +31,13 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http = http.csrf(customzer -> customzer.disable())
         .cors(customizer -> customizer.disable())
-        .httpBasic(Customizer.withDefaults())
+        .httpBasic(customizer -> customizer.disable())
         .authorizeHttpRequests(customizer -> customizer
             .requestMatchers("/api/student/hello").hasRole("STUDENT")
             .requestMatchers("/api/staff/hello").hasRole("STAFF")
             .requestMatchers("/api/admin/**", "/api/auth/login")
             .permitAll()
+            .requestMatchers("/api/account/**").authenticated()
             .requestMatchers("/api/email/**").permitAll())
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

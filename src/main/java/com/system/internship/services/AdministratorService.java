@@ -29,6 +29,8 @@ import com.system.internship.services.strategy.AccountRegistrationStrategy;
 import com.system.internship.services.strategy.StaffRegistrationStrategy;
 import com.system.internship.services.strategy.StudentRegistrationStrategy;
 
+import java.util.Map;
+
 @Service
 public class AdministratorService {
 
@@ -40,6 +42,9 @@ public class AdministratorService {
 
   @Autowired
   private BulkEmailService bulkEmailService;
+
+  @Autowired
+  private AccountService accountService;
 
   private final Map<TypeUserEnum, AccountRegistrationStrategy> strategies;
   private final RoleService roleService;
@@ -172,6 +177,26 @@ public class AdministratorService {
     } else {
       return "The username doesn't exist";
     }
+  }
+
+  public String setEnableness(String username, Boolean enabled) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    if (accountOpt.isPresent()) {
+      Account account = accountOpt.get();
+      account.setEnabled(enabled);
+      accountRepository.save(account);
+      return "Set the user enableness successfully";
+    }
+    return "User by that username doesn't exist";
+  }
+
+  public String resetAccountPassword(String username) {
+    Map<String, Object> result = accountService.resetAccountPassword(username);
+    if (((String) result.get("result")).equals("success")) {
+      return "The password of the user \"" + username + "\" has been successfully reset to \"" + result.get("password")
+          + "\"!";
+    }
+    return "There was an error, either the username is incorrect or network failure";
   }
 
 }

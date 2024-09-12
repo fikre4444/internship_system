@@ -49,7 +49,7 @@ public class EmailService {
 
   }
 
-  private boolean validateEmail(String email) {
+  public boolean validateEmail(String email) {
     if (email == null)
       return false;
     if (email.equals(""))

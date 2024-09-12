@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -53,6 +54,9 @@ public class Account implements UserDetails {
 
   private String email;
 
+  @Builder.Default
+  private boolean enabled = true;
+
   @Enumerated(EnumType.STRING)
   private GenderEnum gender;
 
@@ -65,6 +69,11 @@ public class Account implements UserDetails {
     return roles.stream()
         .map(role -> new SimpleGrantedAuthority(role.getName().name()))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return this.enabled;
   }
 
 }

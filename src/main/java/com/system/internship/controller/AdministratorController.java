@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.system.internship.domain.Account;
+import com.system.internship.dto.EnablenessRequest;
 import com.system.internship.dto.RegisterRequestBodyDto;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.dto.RegisterResponseDto;
@@ -60,6 +61,17 @@ public class AdministratorController {
   @PutMapping("/remove-role")
   public ResponseEntity<?> removeRole(@RequestBody RoleRequest roleRequest) {
     return ResponseEntity.ok(administratorService.removeRole(roleRequest.getUsername(), roleRequest.getRole()));
+  }
+
+  @PutMapping("/set-enableness")
+  public ResponseEntity<?> setEnableness(@RequestBody EnablenessRequest request) {
+    return ResponseEntity.ok(administratorService.setEnableness(request.getUsername(), request.getEnabled()));
+  }
+
+  @PutMapping("/reset-password")
+  public ResponseEntity<?> resetAccountPassword(@RequestParam String username) {
+    System.out.println("the username is " + username);
+    return ResponseEntity.ok(administratorService.resetAccountPassword(username));
   }
 
 }
