@@ -110,7 +110,8 @@ public class AccountService {
   public String forgotPassword(String username) {
 
     String passwordResetToken = jwtService.generateTokenForPasswordReset(username);
-    if (passwordResetToken == null) { // if the user doesn't exis
+    String email = getEmailFromUsername(username);
+    if (passwordResetToken == null || email == null) { // if the user doesn't exis
       return "The username doesn't exist please contact the administrator!";
     }
     String link = "http://192.168.1.11:5173/reset-password?token=" + passwordResetToken;
@@ -122,6 +123,19 @@ public class AccountService {
     emailService.sendEmail(emailAddress, "password reset", content);
     return "The password Link was sent to your corresponding email check it and click the link!";
 
+  }
+
+  public String getEmailFromUsername(String username) {
+    String email = null;
+    Optional<Account> actOpt = accountRepository.findByUsername(username);
+    if (actOpt.isPresent()) {
+      Account account = actOpt.get();
+      if (emailService.validateEmail(account.getEmail())) {
+        email = account.getEmail();
+      }
+    }
+
+    return email;
   }
 
 }
