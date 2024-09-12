@@ -33,6 +33,12 @@ public class AccountService {
   @Autowired
   private PasswordService passwordService;
 
+  @Autowired
+  private EmailService emailService;
+
+  @Autowired
+  private JwtService jwtService;
+
   public AccountDto getAccountDto() {
 
     val accountDto = AccountDto.builder();
@@ -86,13 +92,36 @@ public class AccountService {
     return Map.of("result", "failure", "password", null);
   }
 
+  public String resetPasswordThroughEmail(String username, String inputtedPassword) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    if (accountOpt.isPresent()) {
+      Account account = accountOpt.get();
+      account.setPassword(passwordEncoder.encode(inputtedPassword));
+      Optional<OpenPassword> op = opRepo.findByAccount(account);
+      if (op.isPresent()) { // if there was an open password then remove it
+        opRepo.delete(op.get());
+      }
+      accountRepository.save(account);
+      return "Account Password Reset Successfully!";
+    }
+    return "There was an error trying to reset your password, please try again later!";
+  }
+
   public String forgotPassword(String username) {
-    // Map<String, Object> result = resetAccountPassword(username);
-    // if(((String)result.get("result")).equals("success")){
-    // //send an email here and then return the response
-    // return "The password has been sent to your email"
-    // }
-    return "There was an error while resetting the password, please contact your administrator for password resetting!";
+
+    String passwordResetToken = jwtService.generateTokenForPasswordReset(username);
+    if (passwordResetToken == null) { // if the user doesn't exis
+      return "The username doesn't exist please contact the administrator!";
+    }
+    String link = "http://192.168.1.11:5173/reset-password?token=" + passwordResetToken;
+    String content = "Dear user, you have requested a password reset request click the link below to reset the password";
+    content += "<br>If you haven't requested this, ignore the message.<br>";
+    content += link;
+    content += "<br>Note that the Link only works for 15 minutes";
+    String emailAddress = "fikretesfay4444@gmail.com";
+    emailService.sendEmail(emailAddress, "password reset", content);
+    return "The password Link was sent to your corresponding email check it and click the link!";
+
   }
 
 }

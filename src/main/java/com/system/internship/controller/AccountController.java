@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.system.internship.domain.Account;
+import com.system.internship.dto.LoginDto;
 import com.system.internship.dto.PasswordUpdateDto;
 import com.system.internship.services.AccountService;
 
@@ -35,6 +36,14 @@ public class AccountController {
   @PutMapping("/forgot-password")
   public ResponseEntity<?> forgotPassword(@RequestParam String username) {
     return ResponseEntity.ok(accountService.forgotPassword(username));
+  }
+
+  @PutMapping("/reset-password")
+  public ResponseEntity<?> resetPassword(@RequestBody LoginDto loginDto) {
+    System.out.println(loginDto.getUsername());
+    System.out.println(loginDto.getPassword());
+    return ResponseEntity.ok(accountService.resetPasswordThroughEmail(loginDto.getUsername(), loginDto.getPassword()));
+
   }
 
 }

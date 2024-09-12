@@ -37,6 +37,7 @@ public class SecurityConfig {
             .requestMatchers("/api/staff/hello").hasRole("STAFF")
             .requestMatchers("/api/admin/**", "/api/auth/login")
             .permitAll()
+            .requestMatchers("/api/account/forgot-password").permitAll()
             .requestMatchers("/api/account/**").authenticated()
             .requestMatchers("/api/email/**").permitAll())
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

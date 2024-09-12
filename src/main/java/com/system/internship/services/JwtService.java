@@ -41,9 +41,10 @@ public class JwtService {
   }
 
   public String generateToken(String username) {
+    final long ONE_DAY = 1000 * 60 * 60 * 24;
     Map<String, Object> claims = new HashMap<>();
 
-    //this is to add the roles of the person
+    // this is to add the roles of the person
     Optional<Account> account = accountRepository.findByUsername(username);
     if (account.isPresent()) {
       claims.put("roles", account.get().getAuthorities().stream()
@@ -55,7 +56,28 @@ public class JwtService {
         .add(claims)
         .subject(username)
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 30)))
+        .expiration(new Date(System.currentTimeMillis() + (ONE_DAY)))
+        .and()
+        .signWith(getKey())
+        .compact();
+  }
+
+  // might have to refactor later
+  public String generateTokenForPasswordReset(String username) {
+    final int FIFTEEN_MINUTES = 1000 * 60 * 15;
+    Map<String, Object> claims = new HashMap<>();
+    Optional<Account> account = accountRepository.findByUsername(username);
+    if (!account.isPresent()) {
+      return null;
+    }
+    claims.put("roles", account.get().getAuthorities().stream()
+        .map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList()));
+    return Jwts.builder()
+        .claims()
+        .add(claims)
+        .subject(username)
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + (FIFTEEN_MINUTES)))
         .and()
         .signWith(getKey())
         .compact();
