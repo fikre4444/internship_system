@@ -1,6 +1,9 @@
 package com.system.internship.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.system.internship.enums.RoleEnum;
+import com.system.internship.serializer.RoleSerializer;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,10 +24,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "role")
+@JsonSerialize(using = RoleSerializer.class)
 public class Role {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @JsonIgnore
   private Long id;
 
   @Enumerated(EnumType.STRING)

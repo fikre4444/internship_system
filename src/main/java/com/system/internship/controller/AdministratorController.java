@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -74,4 +75,23 @@ public class AdministratorController {
     return ResponseEntity.ok(administratorService.resetAccountPassword(username));
   }
 
+  @PostMapping("just-do-something")
+  public ResponseEntity<?> doSomething(@RequestBody RegisterRequestBodyDto reg) {
+    return ResponseEntity.ok(reg);
+  }
+
+  @DeleteMapping("delete-students")
+  public ResponseEntity<?> deleteStudents(@RequestParam String department) {
+    return ResponseEntity.ok(administratorService.deleteStudentsByDepartment(department));
+  }
+
+  @GetMapping("get-students")
+  public ResponseEntity<?> getStudents(@RequestParam String department) {
+    return ResponseEntity.ok(administratorService.getStudentsByDepartment(department));
+  }
+
+  @DeleteMapping("delete-user")
+  public ResponseEntity<?> deleteStudent(@RequestParam String username) {
+    return ResponseEntity.ok(administratorService.deleteStudent(username));
+  }
 }

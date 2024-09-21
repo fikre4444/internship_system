@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
+import com.system.internship.domain.Account;
 import com.system.internship.domain.OpenPassword;
 import com.system.internship.domain.Role;
 import com.system.internship.domain.Staff;
+import com.system.internship.domain.Student;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.dto.RegisterResponseDto;
 import com.system.internship.dto.StaffDto;
@@ -22,6 +24,7 @@ import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.OpenPasswordRepository;
 import com.system.internship.repository.RoleRepository;
 import com.system.internship.repository.StaffRepository;
+import com.system.internship.services.AccountService;
 import com.system.internship.services.RoleService;
 import com.system.internship.util.PasswordGenerator;
 
@@ -34,15 +37,17 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
   private final PasswordEncoder passwordEncoder;
   private final OpenPasswordRepository openPasswordRepository;
   private final RoleService roleService;
+  private final AccountService accountService;
 
   public StaffRegistrationStrategy(RestTemplate restTemplate, StaffRepository staffRepository,
       PasswordEncoder passwordEncoder, OpenPasswordRepository openPasswordRepository,
-      RoleService roleService) {
+      RoleService roleService, AccountService accountService) {
     this.restTemplate = restTemplate;
     this.staffRepository = staffRepository;
     this.passwordEncoder = passwordEncoder;
     this.openPasswordRepository = openPasswordRepository;
     this.roleService = roleService;
+    this.accountService = accountService;
   }
 
   @Override
@@ -79,16 +84,25 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
   @Override
   public RegisterResponseDto registerCustom(RegisterRequestCustomBodyDto registerDto) {
     Staff staff = convertFromCustomToStaff(registerDto);
-    if (!staffRepository.findByUsername(staff.getUsername()).isPresent()) {
+    Account account = accountService.checkAccountExistenceFromUsername(staff.getUsername());
+    if (account == null) { // if the account doesn't exist
+      System.out.println("In the register custom empty");
       String generatedPassword = PasswordGenerator.generateRandomPassword(8);
       staff.setPassword(passwordEncoder.encode(generatedPassword));
       OpenPassword op = OpenPassword.builder().password(generatedPassword).account(staff).build();
-      staffRepository.save(staff);
+      staff = staffRepository.save(staff);
       openPasswordRepository.save(op);
       return RegisterResponseDto.builder().registeredStaffs(List.of(staff)).build();
     } else {
-      // System.out.println("This is already present");
-      return RegisterResponseDto.builder().existingStaffs(List.of(staff)).build();
+      // if it's already preset check the type and set the appropriate
+      // registerresponsedto
+      val rrd = RegisterResponseDto.builder();
+      if (account instanceof Student) {
+        rrd.existingStudents(List.of((Student) account));
+      } else if (account instanceof Staff) {
+        rrd.existingStaffs(List.of((Staff) account));
+      }
+      return rrd.build();
     }
   }
 

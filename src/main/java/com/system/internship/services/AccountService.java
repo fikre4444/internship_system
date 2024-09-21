@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.system.internship.domain.Account;
 import com.system.internship.domain.OpenPassword;
+import com.system.internship.domain.Staff;
+import com.system.internship.domain.Student;
 import com.system.internship.dto.AccountDto;
 import com.system.internship.dto.PasswordUpdateDto;
 import com.system.internship.repository.AccountRepository;
@@ -119,8 +121,7 @@ public class AccountService {
     content += "<br>If you haven't requested this, ignore the message.<br>";
     content += link;
     content += "<br>Note that the Link only works for 15 minutes";
-    String emailAddress = "fikretesfay4444@gmail.com";
-    emailService.sendEmail(emailAddress, "password reset", content);
+    emailService.sendEmail(email, "password reset", content);
     return "The password Link was sent to your corresponding email check it and click the link!";
 
   }
@@ -138,4 +139,12 @@ public class AccountService {
     return email;
   }
 
+  public Account checkAccountExistenceFromUsername(String username) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    Account account = null;
+    if (accountOpt.isPresent()) {
+      account = accountOpt.get();
+    }
+    return account;
+  }
 }

@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import com.system.internship.domain.Account;
 import com.system.internship.domain.OpenPassword;
 import com.system.internship.domain.Role;
+import com.system.internship.domain.Student;
 import com.system.internship.dto.*;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.enums.TypeUserEnum;
@@ -29,10 +30,16 @@ import com.system.internship.services.strategy.AccountRegistrationStrategy;
 import com.system.internship.services.strategy.StaffRegistrationStrategy;
 import com.system.internship.services.strategy.StudentRegistrationStrategy;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+
 import java.util.Map;
 
 @Service
 public class AdministratorService {
+
+  @Autowired
+  private EntityManager entityManager;
 
   @Autowired
   private AccountRepository accountRepository;
@@ -46,19 +53,25 @@ public class AdministratorService {
   @Autowired
   private AccountService accountService;
 
+  @Autowired
+  private StudentRepository studentRepository;
+
+  @Autowired
+  PasswordService passwordService;
+
   private final Map<TypeUserEnum, AccountRegistrationStrategy> strategies;
   private final RoleService roleService;
 
   // create the two strategies for registration (for student and staff)
   public AdministratorService(RestTemplate restTemplate, StaffRepository staffRepository,
       StudentRepository studentRepository, PasswordEncoder passwordEncoder,
-      OpenPasswordRepository openPasswordRepository, RoleService roleService) {
+      OpenPasswordRepository openPasswordRepository, RoleService roleService, AccountService accountService) {
     strategies = new HashMap<>();
     this.roleService = roleService;
     strategies.put(TypeUserEnum.STAFF, new StaffRegistrationStrategy(
-        restTemplate, staffRepository, passwordEncoder, openPasswordRepository, roleService));
+        restTemplate, staffRepository, passwordEncoder, openPasswordRepository, roleService, accountService));
     strategies.put(TypeUserEnum.STUDENT, new StudentRegistrationStrategy(
-        restTemplate, studentRepository, passwordEncoder, openPasswordRepository, roleService));
+        restTemplate, studentRepository, passwordEncoder, openPasswordRepository, roleService, accountService));
   }
 
   public RegisterResponseDto register(RegisterRequestBodyDto body) {
@@ -80,6 +93,7 @@ public class AdministratorService {
       ex.printStackTrace();
       registerResponseDto = RegisterResponseDto.builder().incorrectBody(true).build();
     }
+    addThePasswords(registerResponseDto); // adds the open password to the accounts if there is one
     return registerResponseDto;
   }
 
@@ -93,6 +107,7 @@ public class AdministratorService {
     // get strategy based on type of user
     AccountRegistrationStrategy strategy = strategies.get(registerDto.getTypeUser());
     registerResponseDto = strategy.registerCustom(registerDto);
+    addThePasswords(registerResponseDto); // adds the open password to the accounts if there is uno
     return registerResponseDto;
   }
 
@@ -197,6 +212,56 @@ public class AdministratorService {
           + "\"!";
     }
     return "There was an error, either the username is incorrect or network failure";
+  }
+
+  @Transactional
+  public RegisterResponseDto deleteStudentsByDepartment(String department) {
+    List<Student> students = studentRepository.findByDepartment(department);
+    studentRepository.deleteStudentsByDepartment(department);
+    return RegisterResponseDto.builder().existingStudents(students).build();
+  }
+
+  public RegisterResponseDto getStudentsByDepartment(String department) {
+    List<Student> students = studentRepository.findByDepartment(department);
+    RegisterResponseDto registerResponseDto = RegisterResponseDto.builder().existingStudents(students).build();
+    addThePasswords(registerResponseDto);
+    return registerResponseDto;
+  }
+
+  public void addThePasswords(RegisterResponseDto response) {
+    if (response.getExistingStaffs() != null) {
+      setPasswords(response.getExistingStaffs());
+    }
+    if (response.getExistingStudents() != null) {
+      setPasswords(response.getExistingStudents());
+    }
+    if (response.getRegisteredStaffs() != null) {
+      setPasswords(response.getRegisteredStaffs());
+    }
+    if (response.getRegisteredStudents() != null) {
+      setPasswords(response.getRegisteredStudents());
+    }
+  }
+
+  public void setPasswords(List<? extends Account> accounts) {
+    accounts.forEach(account -> {
+      entityManager.detach(account);
+      String openPassword = passwordService.getOpenPasswordOfAccount(account);
+      account.setPassword(openPassword);
+    });
+  }
+
+  public Account deleteStudent(String username) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    Account account = null;
+    if (accountOpt.isPresent()) {
+      account = accountOpt.get();
+      Optional<OpenPassword> opOpt = opRepo.findByAccount(account);
+      if (opOpt.isPresent())
+        opRepo.delete(opOpt.get());
+      accountRepository.delete(account);
+    }
+    return account;
   }
 
 }

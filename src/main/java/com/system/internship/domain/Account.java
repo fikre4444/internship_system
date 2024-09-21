@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.system.internship.enums.GenderEnum;
 
 import jakarta.persistence.CascadeType;
@@ -60,10 +61,11 @@ public class Account implements UserDetails {
   @Enumerated(EnumType.STRING)
   private GenderEnum gender;
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(name = "account_role", joinColumns = @JoinColumn(name = "account_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles;
 
+  @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return roles.stream()
@@ -74,6 +76,21 @@ public class Account implements UserDetails {
   @Override
   public boolean isEnabled() {
     return this.enabled;
+  }
+
+  @JsonIgnore
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @JsonIgnore
+  public boolean isCredentialsNonExpired() {
+    return true;
   }
 
 }

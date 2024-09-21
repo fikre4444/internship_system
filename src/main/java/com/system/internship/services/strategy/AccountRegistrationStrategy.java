@@ -33,4 +33,5 @@ public interface AccountRegistrationStrategy {
     repository.saveAll(accounts);
     openPasswordRepository.saveAll(generatedOpenPasswords);
   }
+
 }

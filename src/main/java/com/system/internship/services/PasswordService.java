@@ -28,4 +28,12 @@ public class PasswordService {
     }
   }
 
+  public String getOpenPasswordOfAccount(Account account) {
+    Optional<OpenPassword> opOpt = openPasswordRepository.findByAccount(account);
+    if (opOpt.isPresent()) {
+      return opOpt.get().getPassword();
+    }
+    return null;
+  }
+
 }

@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
+import com.system.internship.domain.Account;
 import com.system.internship.domain.OpenPassword;
 import com.system.internship.domain.Role;
+import com.system.internship.domain.Staff;
 import com.system.internship.domain.Student;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.dto.RegisterResponseDto;
@@ -20,6 +22,7 @@ import com.system.internship.enums.GenderEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.OpenPasswordRepository;
 import com.system.internship.repository.StudentRepository;
+import com.system.internship.services.AccountService;
 import com.system.internship.services.RoleService;
 import com.system.internship.util.PasswordGenerator;
 
@@ -32,15 +35,17 @@ public class StudentRegistrationStrategy implements AccountRegistrationStrategy 
   private final OpenPasswordRepository openPasswordRepository;
   private final PasswordEncoder passwordEncoder;
   private final RoleService roleService;
+  private final AccountService accountService;
 
   public StudentRegistrationStrategy(RestTemplate restTemplate, StudentRepository studentRepository,
       PasswordEncoder passwordEncoder, OpenPasswordRepository openPasswordRepository,
-      RoleService roleService) {
+      RoleService roleService, AccountService accountService) {
     this.restTemplate = restTemplate;
     this.studentRepository = studentRepository;
     this.passwordEncoder = passwordEncoder;
     this.openPasswordRepository = openPasswordRepository;
     this.roleService = roleService;
+    this.accountService = accountService;
   }
 
   @Override
@@ -78,18 +83,24 @@ public class StudentRegistrationStrategy implements AccountRegistrationStrategy 
 
   @Override
   public RegisterResponseDto registerCustom(RegisterRequestCustomBodyDto registerDto) {
+    val rrd = RegisterResponseDto.builder();
     Student student = convertFromCustomToStudent(registerDto);
-    if (!studentRepository.findByUsername(student.getUsername()).isPresent()) {
+    Account account = accountService.checkAccountExistenceFromUsername(student.getUsername());
+    if (account == null) {
       String generatedPassword = PasswordGenerator.generateRandomPassword(8);
       student.setPassword(passwordEncoder.encode(generatedPassword));
       OpenPassword op = OpenPassword.builder().password(generatedPassword).account(student).build();
-      studentRepository.save(student);
+      student = studentRepository.save(student);
       openPasswordRepository.save(op);
-      return RegisterResponseDto.builder().registeredStudents(List.of(student)).build();
+      rrd.registeredStudents(List.of(student));
     } else {
-      // System.out.println("This is already present");
-      return RegisterResponseDto.builder().existingStudents(List.of(student)).build();
+      if (account instanceof Student) {
+        rrd.existingStudents(List.of((Student) account));
+      } else if (account instanceof Staff) {
+        rrd.existingStaffs(List.of((Staff) account));
+      }
     }
+    return rrd.build();
   }
 
   private List<Student> convertToStudents(StudentDto[] studentDtos) {
