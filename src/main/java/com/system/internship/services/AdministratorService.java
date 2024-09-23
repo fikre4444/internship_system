@@ -217,6 +217,8 @@ public class AdministratorService {
   @Transactional
   public RegisterResponseDto deleteStudentsByDepartment(String department) {
     List<Student> students = studentRepository.findByDepartment(department);
+    List<OpenPassword> openPasswords = opRepo.findByAccountIn(students);
+    opRepo.deleteAll(openPasswords);
     studentRepository.deleteStudentsByDepartment(department);
     return RegisterResponseDto.builder().existingStudents(students).build();
   }
