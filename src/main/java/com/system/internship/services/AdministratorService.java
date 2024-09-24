@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import com.system.internship.domain.Account;
 import com.system.internship.domain.OpenPassword;
 import com.system.internship.domain.Role;
+import com.system.internship.domain.Staff;
 import com.system.internship.domain.Student;
 import com.system.internship.dto.*;
 import com.system.internship.enums.RoleEnum;
@@ -39,9 +40,6 @@ import java.util.Map;
 public class AdministratorService {
 
   @Autowired
-  private EntityManager entityManager;
-
-  @Autowired
   private AccountRepository accountRepository;
 
   @Autowired
@@ -55,6 +53,9 @@ public class AdministratorService {
 
   @Autowired
   private StudentRepository studentRepository;
+
+  @Autowired
+  private StaffRepository staffRepository;
 
   @Autowired
   PasswordService passwordService;
@@ -214,22 +215,6 @@ public class AdministratorService {
     return "There was an error, either the username is incorrect or network failure";
   }
 
-  @Transactional
-  public RegisterResponseDto deleteStudentsByDepartment(String department) {
-    List<Student> students = studentRepository.findByDepartment(department);
-    List<OpenPassword> openPasswords = opRepo.findByAccountIn(students);
-    opRepo.deleteAll(openPasswords);
-    studentRepository.deleteStudentsByDepartment(department);
-    return RegisterResponseDto.builder().existingStudents(students).build();
-  }
-
-  public RegisterResponseDto getStudentsByDepartment(String department) {
-    List<Student> students = studentRepository.findByDepartment(department);
-    RegisterResponseDto registerResponseDto = RegisterResponseDto.builder().existingStudents(students).build();
-    addThePasswords(registerResponseDto);
-    return registerResponseDto;
-  }
-
   public void addThePasswords(RegisterResponseDto response) {
     if (response.getExistingStaffs() != null) {
       setPasswords(response.getExistingStaffs());
@@ -247,13 +232,12 @@ public class AdministratorService {
 
   public void setPasswords(List<? extends Account> accounts) {
     accounts.forEach(account -> {
-      entityManager.detach(account);
       String openPassword = passwordService.getOpenPasswordOfAccount(account);
       account.setPassword(openPassword);
     });
   }
 
-  public Account deleteStudent(String username) {
+  public Account deleteAccount(String username) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
     Account account = null;
     if (accountOpt.isPresent()) {
@@ -264,6 +248,54 @@ public class AdministratorService {
       accountRepository.delete(account);
     }
     return account;
+  }
+
+  @Transactional
+  public List<? extends Account> deleteAccountsByDepartment(String department,
+      String typeUser) throws Exception {
+    TypeUserEnum typeUserEnum = TypeUserEnum.valueOf(typeUser.toUpperCase());
+    if (typeUserEnum.equals(TypeUserEnum.STUDENT)) {
+      List<Student> students = studentRepository.findByDepartment(department);
+      deleteOpenPasswordsOfAccounts(students);
+      studentRepository.deleteStudentsByDepartment(department);
+      return students;
+    } else if (typeUserEnum.equals(TypeUserEnum.STAFF)) {
+      List<Staff> staffs = staffRepository.findByDepartment(department);
+      deleteOpenPasswordsOfAccounts(staffs);
+      staffRepository.deleteStaffsByDepartment(department);
+      return staffs;
+    } else {
+      throw new Exception("The Type of user you input is invalid must only be STAFF/STUDENT.");
+    }
+  }
+
+  public void deleteOpenPasswordsOfAccounts(List<? extends Account> accounts) {
+    opRepo.deleteByAccountIn(accounts);
+  }
+
+  public Account getAccount(String username) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    if (accountOpt.isPresent()) {
+      Account acc = accountOpt.get();
+      acc.setPassword(passwordService.getOpenPasswordOfAccount(acc));
+      return acc;
+    }
+    return null;
+  }
+
+  public List<? extends Account> getAccountsByDepartment(String department, String typeUser) throws Exception {
+    TypeUserEnum typeUserEnum = TypeUserEnum.valueOf(typeUser.toUpperCase());
+    if (typeUserEnum.equals(TypeUserEnum.STUDENT)) {
+      List<Student> students = studentRepository.findByDepartment(department);
+      setPasswords(students);
+      return students;
+    } else if (typeUserEnum.equals(TypeUserEnum.STAFF)) {
+      List<Staff> staffs = staffRepository.findByDepartment(department);
+      setPasswords(staffs);
+      return staffs;
+    } else {
+      throw new Exception("The Type of user you input is invalid must only be STAFF/STUDENT.");
+    }
   }
 
 }

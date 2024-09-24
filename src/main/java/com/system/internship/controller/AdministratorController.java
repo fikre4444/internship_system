@@ -2,8 +2,11 @@ package com.system.internship.controller;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.system.internship.domain.Account;
@@ -75,23 +79,56 @@ public class AdministratorController {
     return ResponseEntity.ok(administratorService.resetAccountPassword(username));
   }
 
-  @PostMapping("just-do-something")
-  public ResponseEntity<?> doSomething(@RequestBody RegisterRequestBodyDto reg) {
-    return ResponseEntity.ok(reg);
+  @GetMapping("/get-account")
+  public ResponseEntity<?> getAccount(@RequestParam String username) {
+    Account acc = administratorService.getAccount(username);
+    if (acc == null) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Error-Message", "Username not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    }
+    return ResponseEntity.ok(acc);
   }
 
-  @DeleteMapping("delete-students")
-  public ResponseEntity<?> deleteStudents(@RequestParam String department) {
-    return ResponseEntity.ok(administratorService.deleteStudentsByDepartment(department));
+  @GetMapping("/get-accounts-by-department")
+  public ResponseEntity<?> getStudents(@RequestBody Map<String, String> request) {
+    // should use "department" and "typeUser" as the two arguments to get from the
+    // json body
+    String department = request.get("department");
+    String typeUser = request.get("typeUser");
+    try {
+      return ResponseEntity.ok(administratorService.getAccountsByDepartment(department, typeUser));
+    } catch (Exception ex) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Error-Message", ex.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    }
   }
 
-  @GetMapping("get-students")
-  public ResponseEntity<?> getStudents(@RequestParam String department) {
-    return ResponseEntity.ok(administratorService.getStudentsByDepartment(department));
+  @DeleteMapping("/delete-account")
+  public ResponseEntity<?> deleteAccount(@RequestParam String username) {
+    Account acc = administratorService.deleteAccount(username);
+    if (acc == null) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Error-Message", "Username not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    }
+    return ResponseEntity.ok(acc);
   }
 
-  @DeleteMapping("delete-user")
-  public ResponseEntity<?> deleteStudent(@RequestParam String username) {
-    return ResponseEntity.ok(administratorService.deleteStudent(username));
+  @DeleteMapping("/delete-accounts-by-department")
+  public ResponseEntity<?> deleteAccountsByDepartment(@RequestBody Map<String, String> request) {
+    // should use "department" and "typeUser" as the two arguments to get from the
+    // json body
+    String department = request.get("department");
+    String typeUser = request.get("typeUser");
+    try {
+      return ResponseEntity.ok(administratorService.deleteAccountsByDepartment(department, typeUser));
+    } catch (Exception ex) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Error-Message", ex.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    }
   }
+
 }
