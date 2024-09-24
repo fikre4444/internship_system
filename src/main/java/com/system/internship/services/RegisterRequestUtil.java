@@ -7,6 +7,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.system.internship.dto.RegisterRequestBodyDto;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.enums.TypeUserEnum;
+import com.system.internship.util.DepartmentUtil;
 
 public class RegisterRequestUtil {
 
@@ -39,7 +40,7 @@ public class RegisterRequestUtil {
     if (body.getAmount().equals(RegisterRequestBodyDto.AmountEnum.BATCH)) {
       baseUrl += "/departments";
       uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
-          .queryParam("departmentName", body.getDepartment())
+          .queryParam("departmentName", DepartmentUtil.getApiStringFromEnum(body.getDepartment()))
           .build()
           .toUri();
     } else if (body.getAmount().equals(RegisterRequestBodyDto.AmountEnum.SINGLE)) {
@@ -68,13 +69,13 @@ public class RegisterRequestUtil {
     if (registerDto.getGender() == null || registerDto.getGender().equals(""))
       return false;
     if (registerDto.getTypeUser().equals(TypeUserEnum.STAFF)) {
-      if (registerDto.getDepartment() == null || registerDto.getDepartment().equals(""))
+      if (registerDto.getDepartment() == null)
         return false;
       if (registerDto.getCourseLoad() == null)
         return false;
     }
     if (registerDto.getTypeUser().equals(TypeUserEnum.STUDENT)) {
-      if (registerDto.getDepartment() == null || registerDto.getDepartment().equals(""))
+      if (registerDto.getDepartment() == null)
         return false;
       if (registerDto.getGrade() == null)
         return false;

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.system.internship.domain.Student;
+import com.system.internship.enums.DepartmentEnum;
 
 import jakarta.transaction.Transactional;
 
@@ -19,10 +20,10 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
   Optional<Student> findByUsername(String username);
 
   @Query("SELECT s FROM Student s WHERE s.department = :department")
-  List<Student> findByDepartment(@Param("department") String department);
+  List<Student> findByDepartment(@Param("department") DepartmentEnum department);
 
   @Modifying
   @Query("DELETE FROM Student s WHERE s.department = :department")
-  void deleteStudentsByDepartment(@Param("department") String department);
+  void deleteStudentsByDepartment(@Param("department") DepartmentEnum department);
 
 }

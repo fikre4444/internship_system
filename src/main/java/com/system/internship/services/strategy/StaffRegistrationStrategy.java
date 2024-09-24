@@ -26,6 +26,7 @@ import com.system.internship.repository.RoleRepository;
 import com.system.internship.repository.StaffRepository;
 import com.system.internship.services.AccountService;
 import com.system.internship.services.RoleService;
+import com.system.internship.util.DepartmentUtil;
 import com.system.internship.util.PasswordGenerator;
 
 import lombok.val;
@@ -123,7 +124,7 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
         .username(staffDto.getUsername())
         .roles(Set.of(roleService.getRole(RoleEnum.ROLE_STAFF)))
         .gender(GenderEnum.fromName(staffDto.getGender()))
-        .department(staffDto.getDepartment())
+        .department(DepartmentUtil.convertDepartmentStringToEnum(staffDto.getDepartment(), "Estudent"))
         .courseLoad(staffDto.getCourseLoad());
     if (staffDto.getEmail() != null && !staffDto.getEmail().equals("")) {
       staff.email(staffDto.getEmail());

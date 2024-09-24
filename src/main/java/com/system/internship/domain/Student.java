@@ -1,6 +1,8 @@
 package com.system.internship.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
 
+import com.system.internship.enums.DepartmentEnum;
+
 @ToString(callSuper = true)
 @Data
 @NoArgsConstructor
@@ -20,7 +24,8 @@ import java.util.Objects;
 @Table(name = "student")
 public class Student extends Account {
 
-  private String department;
+  @Enumerated(EnumType.STRING)
+  private DepartmentEnum department;
   private String stream;
   private Float grade;
 

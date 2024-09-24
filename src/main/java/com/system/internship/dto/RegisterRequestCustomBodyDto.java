@@ -1,5 +1,6 @@
 package com.system.internship.dto;
 
+import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.enums.TypeUserEnum;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class RegisterRequestCustomBodyDto {
   private String email; // optional
 
   // these will be filled based on the type of user
-  private String department;
+  private DepartmentEnum department;
   private Float courseLoad;
   private String stream;
   private Float grade;

@@ -24,6 +24,7 @@ import com.system.internship.repository.OpenPasswordRepository;
 import com.system.internship.repository.StudentRepository;
 import com.system.internship.services.AccountService;
 import com.system.internship.services.RoleService;
+import com.system.internship.util.DepartmentUtil;
 import com.system.internship.util.PasswordGenerator;
 
 import lombok.val;
@@ -120,7 +121,7 @@ public class StudentRegistrationStrategy implements AccountRegistrationStrategy 
         .username(studentDto.getUsername())
         .gender(GenderEnum.fromName(studentDto.getGender()))
         .roles(Set.of(roleService.getRole(RoleEnum.ROLE_STUDENT)))
-        .department(studentDto.getDepartment())
+        .department(DepartmentUtil.convertDepartmentStringToEnum(studentDto.getDepartment(), "Estudent"))
         .stream(studentDto.getStream())
         .grade(studentDto.getGrade());
     if (studentDto.getEmail() != null && !studentDto.getEmail().equals("")) {

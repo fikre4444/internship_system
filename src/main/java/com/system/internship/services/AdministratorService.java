@@ -23,6 +23,7 @@ import com.system.internship.domain.Role;
 import com.system.internship.domain.Staff;
 import com.system.internship.domain.Student;
 import com.system.internship.dto.*;
+import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.enums.TypeUserEnum;
 import com.system.internship.repository.*;
@@ -254,15 +255,17 @@ public class AdministratorService {
   public List<? extends Account> deleteAccountsByDepartment(String department,
       String typeUser) throws Exception {
     TypeUserEnum typeUserEnum = TypeUserEnum.valueOf(typeUser.toUpperCase());
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
+
     if (typeUserEnum.equals(TypeUserEnum.STUDENT)) {
-      List<Student> students = studentRepository.findByDepartment(department);
+      List<Student> students = studentRepository.findByDepartment(departmentEnum);
       deleteOpenPasswordsOfAccounts(students);
-      studentRepository.deleteStudentsByDepartment(department);
+      studentRepository.deleteStudentsByDepartment(departmentEnum);
       return students;
     } else if (typeUserEnum.equals(TypeUserEnum.STAFF)) {
-      List<Staff> staffs = staffRepository.findByDepartment(department);
+      List<Staff> staffs = staffRepository.findByDepartment(departmentEnum);
       deleteOpenPasswordsOfAccounts(staffs);
-      staffRepository.deleteStaffsByDepartment(department);
+      staffRepository.deleteStaffsByDepartment(departmentEnum);
       return staffs;
     } else {
       throw new Exception("The Type of user you input is invalid must only be STAFF/STUDENT.");
@@ -285,12 +288,13 @@ public class AdministratorService {
 
   public List<? extends Account> getAccountsByDepartment(String department, String typeUser) throws Exception {
     TypeUserEnum typeUserEnum = TypeUserEnum.valueOf(typeUser.toUpperCase());
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
     if (typeUserEnum.equals(TypeUserEnum.STUDENT)) {
-      List<Student> students = studentRepository.findByDepartment(department);
+      List<Student> students = studentRepository.findByDepartment(departmentEnum);
       setPasswords(students);
       return students;
     } else if (typeUserEnum.equals(TypeUserEnum.STAFF)) {
-      List<Staff> staffs = staffRepository.findByDepartment(department);
+      List<Staff> staffs = staffRepository.findByDepartment(departmentEnum);
       setPasswords(staffs);
       return staffs;
     } else {

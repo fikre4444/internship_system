@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.system.internship.domain.Staff;
+import com.system.internship.enums.DepartmentEnum;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +17,9 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
   Optional<Staff> findByUsername(String username);
 
   @Query("SELECT s FROM Staff s WHERE s.department = :department")
-  List<Staff> findByDepartment(@Param("department") String department);
+  List<Staff> findByDepartment(@Param("department") DepartmentEnum department);
 
   @Modifying
   @Query("DELETE FROM Staff s WHERE s.department = :department")
-  void deleteStaffsByDepartment(@Param("department") String department);
+  void deleteStaffsByDepartment(@Param("department") DepartmentEnum department);
 }

@@ -18,4 +18,13 @@ public enum RoleEnum {
     return name;
   }
 
+  public static RoleEnum fromName(String name) {
+    for (RoleEnum roleEnum : RoleEnum.values()) {
+      if (roleEnum.getName().equalsIgnoreCase(name)) { // Case insensitive comparison
+        return roleEnum;
+      }
+    }
+    throw new IllegalArgumentException("No enum constant with Role name " + name);
+  }
+
 }
