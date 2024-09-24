@@ -1,5 +1,9 @@
 package com.system.internship.enums;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.system.internship.serializer.DepartmentSerializer;
+
+@JsonSerialize(using = DepartmentSerializer.class)
 public enum DepartmentEnum {
 
   CHEMICAL("Chemical Engineering"),

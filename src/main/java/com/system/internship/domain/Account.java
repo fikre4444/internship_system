@@ -45,6 +45,7 @@ public class Account implements UserDetails {
   @Id
   @SequenceGenerator(name = "account_sequence", sequenceName = "account_sequence", allocationSize = 1)
   @GeneratedValue(generator = "account_sequence", strategy = GenerationType.SEQUENCE)
+  @JsonIgnore
   private Long id;
   private String firstName;
   private String lastName;
