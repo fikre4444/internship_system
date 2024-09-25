@@ -16,7 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.system.internship.filter.JwtFilter;
+import com.system.internship.handler.CustomAccessDeniedHandler;
+import com.system.internship.handler.CustomAuthenticationEntryPoint;
 import com.system.internship.services.MyUserDetailsService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
@@ -26,6 +30,12 @@ public class SecurityConfig {
 
   @Autowired
   private JwtFilter jwtFilter;
+
+  @Autowired
+  private CustomAccessDeniedHandler customAccessDeniedHandler;
+
+  @Autowired
+  private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,6 +50,10 @@ public class SecurityConfig {
             .requestMatchers("/api/account/forgot-password").permitAll()
             .requestMatchers("/api/account/**").authenticated()
             .requestMatchers("/api/email/**").permitAll())
+        .exceptionHandling(customizer -> {
+          customizer.authenticationEntryPoint(customAuthenticationEntryPoint);
+          customizer.accessDeniedHandler(customAccessDeniedHandler);
+        })
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

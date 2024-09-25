@@ -42,6 +42,7 @@ public class JwtService {
 
   public String generateToken(String username) {
     final long ONE_DAY = 1000 * 60 * 60 * 24;
+    final long ONE_MINUTE = 1000 * 60;
     Map<String, Object> claims = new HashMap<>();
 
     // this is to add the roles of the person
