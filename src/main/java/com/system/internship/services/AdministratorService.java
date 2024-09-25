@@ -26,6 +26,7 @@ import com.system.internship.dto.*;
 import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.enums.TypeUserEnum;
+import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.*;
 
 import com.system.internship.services.strategy.AccountRegistrationStrategy;
@@ -155,22 +156,21 @@ public class AdministratorService {
 
   public String addRole(String username, RoleEnum role) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    if (accountOpt.isPresent()) {
-      Account account = accountOpt.get();
-      Set<Role> existingRoles = account.getRoles();
-      Optional<Role> existingOpt = existingRoles.stream().filter(existingRole -> existingRole.getName().equals(role))
-          .findFirst();
-      if (existingOpt.isPresent()) {
-        return "The role: " + role + " already exists for the User";
-      }
-      Role neededRole = roleService.getRole(role);
-      existingRoles.add(neededRole);
-      account.setRoles(existingRoles);
-      accountRepository.save(account);
-      return "Added the role: " + role + " Successfully!";
-    } else {
-      return "The username doesn't exist";
+    if (accountOpt.isEmpty()) {
+      throw new UsernameNotFoundException(username);
     }
+    Account account = accountOpt.get();
+    Set<Role> existingRoles = account.getRoles();
+    Optional<Role> existingOpt = existingRoles.stream().filter(existingRole -> existingRole.getName().equals(role))
+        .findFirst();
+    if (existingOpt.isPresent()) {
+      return "The role: " + role + " already exists for the User";
+    }
+    Role neededRole = roleService.getRole(role);
+    existingRoles.add(neededRole);
+    account.setRoles(existingRoles);
+    accountRepository.save(account);
+    return "Added the role: " + role + " Successfully!";
   }
 
   public String removeRole(String username, RoleEnum role) {
