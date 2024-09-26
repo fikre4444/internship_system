@@ -156,7 +156,7 @@ public class AdministratorService {
 
   public String addRole(String username, RoleEnum role) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    if (accountOpt.isEmpty()) {
+    if (!accountOpt.isPresent()) {
       throw new UsernameNotFoundException(username);
     }
     Account account = accountOpt.get();
@@ -175,36 +175,35 @@ public class AdministratorService {
 
   public String removeRole(String username, RoleEnum role) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    if (accountOpt.isPresent()) {
-      Account account = accountOpt.get();
-      Set<Role> existingRoles = account.getRoles();
-      Optional<Role> toBeRemovedOpt = existingRoles.stream().filter(existingRole -> existingRole.getName().equals(role))
-          .findFirst();
-      if (!toBeRemovedOpt.isPresent()) {
-        return "The role " + role + " doesn't exist for the user!";
-      }
-      Role toBeRemoved = toBeRemovedOpt.get();
-      if (toBeRemoved.getName().equals(RoleEnum.ROLE_STUDENT) || toBeRemoved.getName().equals(RoleEnum.ROLE_STAFF)) {
-        return "The role " + role + " cannot be removed for anyone";
-      }
-      existingRoles.remove(toBeRemoved);
-      account.setRoles(existingRoles);
-      accountRepository.save(account);
-      return "Removed the role: " + role + " Successfully!";
-    } else {
-      return "The username doesn't exist";
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
     }
+    Account account = accountOpt.get();
+    Set<Role> existingRoles = account.getRoles();
+    Optional<Role> toBeRemovedOpt = existingRoles.stream().filter(existingRole -> existingRole.getName().equals(role))
+        .findFirst();
+    if (!toBeRemovedOpt.isPresent()) {
+      return "The role " + role + " doesn't exist for the user!";
+    }
+    Role toBeRemoved = toBeRemovedOpt.get();
+    if (toBeRemoved.getName().equals(RoleEnum.ROLE_STUDENT) || toBeRemoved.getName().equals(RoleEnum.ROLE_STAFF)) {
+      return "The role " + role + " cannot be removed for anyone";
+    }
+    existingRoles.remove(toBeRemoved);
+    account.setRoles(existingRoles);
+    accountRepository.save(account);
+    return "Removed the role: " + role + " Successfully!";
   }
 
   public String setEnableness(String username, Boolean enabled) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    if (accountOpt.isPresent()) {
-      Account account = accountOpt.get();
-      account.setEnabled(enabled);
-      accountRepository.save(account);
-      return "Set the user enableness successfully";
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
     }
-    return "User by that username doesn't exist";
+    Account account = accountOpt.get();
+    account.setEnabled(enabled);
+    accountRepository.save(account);
+    return "Set the user enableness successfully";
   }
 
   public String resetAccountPassword(String username) {
