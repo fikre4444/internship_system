@@ -301,4 +301,10 @@ public class AdministratorService {
     }
   }
 
+  public List<? extends Account> getAccountsByUsername(String username) {
+    List<Account> accounts = accountRepository.findByUsernameContainingIgnoreCase(username);
+    setPasswords(accounts);
+    return accounts;
+  }
+
 }

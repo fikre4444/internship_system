@@ -79,6 +79,11 @@ public class AdministratorController {
     return ResponseEntity.ok(administratorService.resetAccountPassword(username));
   }
 
+  @GetMapping("/get-accounts-by-username")
+  public ResponseEntity<?> getAccountsByUsername(@RequestParam String username) {
+    return ResponseEntity.ok(administratorService.getAccountsByUsername(username));
+  }
+
   @GetMapping("/get-account")
   public ResponseEntity<?> getAccount(@RequestParam String username) {
     Account acc = administratorService.getAccount(username);
