@@ -206,13 +206,14 @@ public class AdministratorService {
     return "Set the user enableness successfully";
   }
 
-  public String resetAccountPassword(String username) {
+  public Map<String, Object> resetAccountPassword(String username) {
     Map<String, Object> result = accountService.resetAccountPassword(username);
     if (((String) result.get("result")).equals("success")) {
-      return "The password of the user \"" + username + "\" has been successfully reset to \"" + result.get("password")
-          + "\"!";
+      return result;
     }
-    return "There was an error, either the username is incorrect or network failure";
+    result.put("result", "failure");
+    result.put("password", null);
+    return result;
   }
 
   public void addThePasswords(RegisterResponseDto response) {
@@ -305,6 +306,42 @@ public class AdministratorService {
     List<Account> accounts = accountRepository.findByUsernameContainingIgnoreCase(username);
     setPasswords(accounts);
     return accounts;
+  }
+
+  public DepartmentEnum changeDepartment(String username, DepartmentEnum departmentEnum) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
+    }
+    Account account = accountOpt.get();
+    if (account instanceof Student) {
+      Student student = (Student) account;
+      student.setDepartment(departmentEnum);
+      studentRepository.save(student);
+    }
+    if (account instanceof Staff) {
+      Staff staff = (Staff) account;
+      staff.setDepartment(departmentEnum);
+      staffRepository.save(staff);
+    }
+    return departmentEnum;
+  }
+
+  public String getTypeOfAccount(Account account) {
+    Set<Role> roles = account.getRoles();
+
+    boolean isStudent = roles.stream()
+        .anyMatch(role -> role.getName() == RoleEnum.ROLE_STUDENT);
+    if (isStudent)
+      return "Student";
+
+    boolean isStaff = roles.stream()
+        .anyMatch(role -> role.getName() == RoleEnum.ROLE_STAFF);
+    if (isStaff)
+      return "Staff";
+
+    return "none";
+
   }
 
 }

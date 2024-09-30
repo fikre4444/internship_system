@@ -24,6 +24,7 @@ import com.system.internship.dto.RegisterRequestBodyDto;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.dto.RegisterResponseDto;
 import com.system.internship.dto.RoleRequest;
+import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.services.AdministratorService;
@@ -108,6 +109,13 @@ public class AdministratorController {
       headers.add("Error-Message", ex.getMessage());
       return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
     }
+  }
+
+  @PutMapping("/change-department")
+  public ResponseEntity<?> changeDepartment(@RequestBody Map<String, String> request) {
+    String username = request.get("username");
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(request.get("department"));
+    return ResponseEntity.ok(administratorService.changeDepartment(username, departmentEnum));
   }
 
   @DeleteMapping("/delete-account")
