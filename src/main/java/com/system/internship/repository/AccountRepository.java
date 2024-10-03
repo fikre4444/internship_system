@@ -13,4 +13,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   List<Account> findAllByUsernameIn(List<String> usernames);
 
   List<Account> findByUsernameContainingIgnoreCase(String username);
+
+  List<Account> findByFirstNameContainingIgnoreCase(String firstName);
+
+  List<Account> findByLastNameContainingIgnoreCase(String lastName);
 }

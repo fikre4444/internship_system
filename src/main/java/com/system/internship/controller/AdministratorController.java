@@ -144,4 +144,15 @@ public class AdministratorController {
     }
   }
 
+  @PostMapping("/complex-search/inclusive")
+  public ResponseEntity<?> complexSearchInclusive(@RequestBody Map<String, String> requestBody) {
+    return ResponseEntity.ok(administratorService.searchInclusive(requestBody));
+  }
+
+  @PostMapping("/complex-search/restrictive")
+  public ResponseEntity<?> complexSearchRestrictive(@RequestBody Map<String, String> requestBody) {
+    return ResponseEntity.ok(administratorService.searchRestrictive(requestBody));
+
+  }
+
 }

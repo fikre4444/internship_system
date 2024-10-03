@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.system.internship.domain.Account;
 import com.system.internship.domain.Student;
 import com.system.internship.enums.DepartmentEnum;
+import com.system.internship.enums.GenderEnum;
 
 import jakarta.transaction.Transactional;
 
@@ -25,5 +27,31 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
   @Modifying
   @Query("DELETE FROM Student s WHERE s.department = :department")
   void deleteStudentsByDepartment(@Param("department") DepartmentEnum department);
+
+  @Query("SELECT a FROM Student a WHERE " +
+      "((:firstName IS NULL OR LOWER(a.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) OR " +
+      "(:lastName IS NULL OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) OR " +
+      "(:username IS NULL OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%')))) AND " +
+      "(:gender IS NULL OR a.gender = :gender) AND " +
+      "(:department IS NULL OR a.department = :department)")
+  List<Account> searchAccountsInclusive(
+      @Param("firstName") String firstName,
+      @Param("lastName") String lastName,
+      @Param("username") String username,
+      @Param("gender") GenderEnum gender,
+      @Param("department") DepartmentEnum department);
+
+  @Query("SELECT a FROM Student a WHERE " +
+      "((:firstName IS NULL OR LOWER(a.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
+      "(:lastName IS NULL OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
+      "(:username IS NULL OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%')))) AND " +
+      "(:gender IS NULL OR a.gender = :gender) AND " +
+      "(:department IS NULL OR a.department = :department)")
+  List<Account> searchAccountsRestrictive(
+      @Param("firstName") String firstName,
+      @Param("lastName") String lastName,
+      @Param("username") String username,
+      @Param("gender") GenderEnum gender,
+      @Param("department") DepartmentEnum department);
 
 }

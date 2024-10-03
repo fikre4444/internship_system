@@ -3,6 +3,7 @@ package com.system.internship.services;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -24,6 +25,7 @@ import com.system.internship.domain.Staff;
 import com.system.internship.domain.Student;
 import com.system.internship.dto.*;
 import com.system.internship.enums.DepartmentEnum;
+import com.system.internship.enums.GenderEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.enums.TypeUserEnum;
 import com.system.internship.exception.UsernameNotFoundException;
@@ -338,21 +340,66 @@ public class AdministratorService {
     return departmentEnum;
   }
 
-  public String getTypeOfAccount(Account account) {
-    Set<Role> roles = account.getRoles();
+  public List<Account> searchInclusive(Map<String, String> requestObject) {
+    Set<Account> accounts = new HashSet<>();
+    // we use firstName, lastName, username, gender, department, staff or student or
+    // both
+    String firstName = requestObject.get("firstName");
+    String lastName = requestObject.get("lastName");
+    String username = requestObject.get("username");
+    GenderEnum gender;
+    DepartmentEnum department;
+    try {
+      gender = GenderEnum.valueOf(requestObject.get("gender"));
+    } catch (Exception e) {
+      gender = null;
+    }
+    try {
+      department = DepartmentEnum.valueOf(requestObject.get("department"));
+    } catch (Exception e) {
+      department = null;
+    }
 
-    boolean isStudent = roles.stream()
-        .anyMatch(role -> role.getName() == RoleEnum.ROLE_STUDENT);
-    if (isStudent)
-      return "Student";
+    if (requestObject.get("typeOfUser").equals("BOTH")) {
+      accounts.addAll(studentRepository.searchAccountsInclusive(firstName, lastName, username, gender, department));
+      accounts.addAll(staffRepository.searchAccountsInclusive(firstName, lastName, username, gender, department));
+    } else if (requestObject.get("typeOfUser").equals("STAFF")) {
+      accounts.addAll(staffRepository.searchAccountsInclusive(firstName, lastName, username, gender, department));
+    } else if (requestObject.get("typeOfUser").equals("STUDENT")) {
+      accounts.addAll(studentRepository.searchAccountsInclusive(firstName, lastName, username, gender, department));
+    }
+    return accounts.stream().toList();
+  }
 
-    boolean isStaff = roles.stream()
-        .anyMatch(role -> role.getName() == RoleEnum.ROLE_STAFF);
-    if (isStaff)
-      return "Staff";
+  public List<Account> searchRestrictive(Map<String, String> requestObject) {
+    Set<Account> accounts = new HashSet<>();
+    // we use firstName, lastName, username, gender, department, staff or student or
+    // both
+    String firstName = requestObject.get("firstName");
+    String lastName = requestObject.get("lastName");
+    String username = requestObject.get("username");
+    GenderEnum gender;
+    DepartmentEnum department;
+    try {
+      gender = GenderEnum.valueOf(requestObject.get("gender"));
+    } catch (Exception e) {
+      gender = null;
+    }
+    try {
+      department = DepartmentEnum.valueOf(requestObject.get("department"));
+    } catch (Exception e) {
+      department = null;
+    }
 
-    return "none";
-
+    if (requestObject.get("typeOfUser").equals("BOTH")) {
+      accounts.addAll(studentRepository.searchAccountsRestrictive(firstName, lastName, username, gender, department));
+      accounts.addAll(staffRepository.searchAccountsRestrictive(firstName, lastName, username, gender, department));
+    } else if (requestObject.get("typeOfUser").equals("STAFF")) {
+      accounts.addAll(staffRepository.searchAccountsRestrictive(firstName, lastName, username, gender, department));
+    } else if (requestObject.get("typeOfUser").equals("STUDENT")) {
+      accounts.addAll(studentRepository.searchAccountsRestrictive(firstName, lastName, username, gender, department));
+    }
+    return accounts.stream().toList();
   }
 
 }
