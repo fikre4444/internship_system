@@ -368,7 +368,9 @@ public class AdministratorService {
     } else if (requestObject.get("typeOfUser").equals("STUDENT")) {
       accounts.addAll(studentRepository.searchAccountsInclusive(firstName, lastName, username, gender, department));
     }
-    return accounts.stream().toList();
+    List<Account> listAccounts = accounts.stream().toList();
+    setPasswords(listAccounts);
+    return listAccounts;
   }
 
   public List<Account> searchRestrictive(Map<String, String> requestObject) {
@@ -399,7 +401,10 @@ public class AdministratorService {
     } else if (requestObject.get("typeOfUser").equals("STUDENT")) {
       accounts.addAll(studentRepository.searchAccountsRestrictive(firstName, lastName, username, gender, department));
     }
-    return accounts.stream().toList();
+    List<Account> listAccounts = accounts.stream().toList();
+    setPasswords(listAccounts);
+    return listAccounts;
+
   }
 
 }
