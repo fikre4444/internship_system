@@ -407,4 +407,42 @@ public class AdministratorService {
 
   }
 
+  public Map<String, Object> getStats() {
+    long amountOfStudents, amountOfStaff;
+    amountOfStudents = studentRepository.count();
+    amountOfStaff = staffRepository.count();
+    Map<String, Object> studentNode = Map.of("name", "Students", "value", amountOfStudents);
+    Map<String, Object> staffNode = Map.of("name", "Staff", "value", amountOfStaff);
+    List<Map<String, Object>> accountTypeList = List.of(studentNode, staffNode);
+
+    // Fetch student and staff counts
+    List<Object[]> studentCounts = studentRepository.countStudentsByDepartmentGroup();
+    List<Object[]> staffCounts = staffRepository.countStaffByDepartmentGroup();
+    List<Map<String, Object>> departmentsList = new ArrayList<>();
+    DepartmentEnum[] departments = DepartmentEnum.values();
+    for (int i = 0; i < departments.length; i++) {
+      long departmentAmountStudent = getAmountOfDepartment(studentCounts, departments[i]);
+      long departmentAmountStaff = getAmountOfDepartment(staffCounts, departments[i]);
+      long total = departmentAmountStaff + departmentAmountStudent;
+      String departmentName = departments[i].getDepartmentName().split(" ")[0];
+      Map<String, Object> singleDepartmentNode = Map.of("department", departmentName, "accounts", total);
+      departmentsList.add(singleDepartmentNode);
+    }
+    Map<String, Object> response = Map.of("accountTypeData", accountTypeList, "departmentData", departmentsList);
+    return response;
+  }
+
+  public long getAmountOfDepartment(List<Object[]> listOfPairs, DepartmentEnum departmentEnum) {
+    // the pair is pair of DepartmentEnum and Amount (long)
+    long result = 0;
+    for (Object[] pair : listOfPairs) {
+      DepartmentEnum currentdepartmentEnum = (DepartmentEnum) pair[0];
+      if (currentdepartmentEnum.equals(departmentEnum)) {
+        result = (Long) pair[1];
+        ;
+      }
+    }
+    return result;
+  }
+
 }

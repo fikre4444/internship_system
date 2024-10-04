@@ -155,4 +155,9 @@ public class AdministratorController {
 
   }
 
+  @GetMapping("/get-stats")
+  public ResponseEntity<?> getStats() {
+    return ResponseEntity.ok(administratorService.getStats());
+  }
+
 }
