@@ -120,19 +120,14 @@ public class AdministratorController {
 
   @DeleteMapping("/delete-account")
   public ResponseEntity<?> deleteAccount(@RequestParam String username) {
-    Account acc = administratorService.deleteAccount(username);
-    if (acc == null) {
-      HttpHeaders headers = new HttpHeaders();
-      headers.add("Error-Message", "Username not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
-    }
-    return ResponseEntity.ok(acc);
+    return ResponseEntity.ok(administratorService.deleteAccount(username));
   }
 
   @DeleteMapping("/delete-accounts-by-department")
   public ResponseEntity<?> deleteAccountsByDepartment(@RequestBody Map<String, String> request) {
     // should use "department" and "typeUser" as the two arguments to get from the
     // json body
+    System.out.println("here in the delete something");
     String department = request.get("department");
     String typeUser = request.get("typeUser");
     try {
@@ -158,6 +153,11 @@ public class AdministratorController {
   @GetMapping("/get-stats")
   public ResponseEntity<?> getStats() {
     return ResponseEntity.ok(administratorService.getStats());
+  }
+
+  @GetMapping("/get-all-accounts")
+  public ResponseEntity<?> getAllAccounts() {
+    return ResponseEntity.ok(administratorService.getAllAccounts());
   }
 
 }

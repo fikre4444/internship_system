@@ -253,36 +253,39 @@ public class AdministratorService {
 
   public Account deleteAccount(String username) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    Account account = null;
-    if (accountOpt.isPresent()) {
-      account = accountOpt.get();
-      Optional<OpenPassword> opOpt = opRepo.findByAccount(account);
-      if (opOpt.isPresent())
-        opRepo.delete(opOpt.get());
-      accountRepository.delete(account);
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
     }
+    Account account = accountOpt.get();
+    Optional<OpenPassword> opOpt = opRepo.findByAccount(account);
+    if (opOpt.isPresent())
+      opRepo.delete(opOpt.get());
+    accountRepository.delete(account);
     return account;
   }
 
   @Transactional
   public List<? extends Account> deleteAccountsByDepartment(String department,
       String typeUser) throws Exception {
-    TypeUserEnum typeUserEnum = TypeUserEnum.valueOf(typeUser.toUpperCase());
     DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
-
-    if (typeUserEnum.equals(TypeUserEnum.STUDENT)) {
+    List<Account> accounts = new ArrayList<>();
+    if (typeUser.equalsIgnoreCase("BOTH")
+        || typeUser.equalsIgnoreCase("STUDENT")) {
       List<Student> students = studentRepository.findByDepartment(departmentEnum);
       deleteOpenPasswordsOfAccounts(students);
       studentRepository.deleteStudentsByDepartment(departmentEnum);
-      return students;
-    } else if (typeUserEnum.equals(TypeUserEnum.STAFF)) {
+      accounts.addAll(students);
+    }
+    if (typeUser.equalsIgnoreCase("BOTH")
+        || typeUser.equalsIgnoreCase("STAFF")) {
       List<Staff> staffs = staffRepository.findByDepartment(departmentEnum);
       deleteOpenPasswordsOfAccounts(staffs);
       staffRepository.deleteStaffsByDepartment(departmentEnum);
-      return staffs;
+      accounts.addAll(staffs);
     } else {
       throw new Exception("The Type of user you input is invalid must only be STAFF/STUDENT.");
     }
+    return accounts;
   }
 
   public void deleteOpenPasswordsOfAccounts(List<? extends Account> accounts) {
@@ -443,6 +446,11 @@ public class AdministratorService {
       }
     }
     return result;
+  }
+
+  public List<Account> getAllAccounts() {
+    List<Account> accounts = accountRepository.findAll();
+    return accounts;
   }
 
 }
