@@ -55,8 +55,7 @@ public class AdministratorController {
 
   @PostMapping("/notify-through-email")
   public ResponseEntity<?> sendEmail(@RequestBody List<String> usernames) {
-    administratorService.sendEmails(usernames);
-    return ResponseEntity.ok(null);
+    return ResponseEntity.ok(administratorService.sendEmails(usernames));
   }
 
   @PutMapping("/add-role")
@@ -83,6 +82,11 @@ public class AdministratorController {
   @GetMapping("/get-accounts-by-username")
   public ResponseEntity<?> getAccountsByUsername(@RequestParam String username) {
     return ResponseEntity.ok(administratorService.getAccountsByUsername(username));
+  }
+
+  @GetMapping("/simple-search")
+  public ResponseEntity<?> getAccountBySearchTerm(@RequestParam String searchTerm) {
+    return ResponseEntity.ok(administratorService.getAccountsBySearchTerm(searchTerm));
   }
 
   @GetMapping("/get-account")

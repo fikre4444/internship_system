@@ -116,33 +116,42 @@ public class AdministratorService {
     return registerResponseDto;
   }
 
-  public void sendEmails(List<String> usernames) {
-    List<Account> accounts = accountRepository.findAllByUsernameIn(usernames);
-    List<Account> validEmailAccounts = accounts.stream().filter(account -> validateEmail(account.getEmail()))
-        .collect(Collectors.toList());
-    List<Long> validEmailAccountIds = validEmailAccounts.stream().map(account -> account.getId())
-        .collect(Collectors.toList());
-    List<OpenPassword> validEmailPasswords = opRepo.findAllById(validEmailAccountIds);
+  public Map<String, Object> sendEmails(List<String> usernames) {
+    try {
+      List<Account> accounts = accountRepository.findAllByUsernameIn(usernames);
+      List<Account> validEmailAccounts = accounts.stream().filter(account -> validateEmail(account.getEmail()))
+          .collect(Collectors.toList());
+      List<OpenPassword> validEmailPasswords = opRepo.findByAccountIn(validEmailAccounts);
+      validEmailAccounts.forEach(validAccount -> {
+        System.out.println(validAccount);
+      });
 
-    List<EmailDetailsDto> emailDtos = new ArrayList<>();
+      List<EmailDetailsDto> emailDtos = new ArrayList<>();
 
-    validEmailAccounts.forEach(validAccount -> {
-      String to = validAccount.getEmail();
-      String subject = "Notifying User about username and password";
-      String password = validEmailPasswords.stream().filter(op -> op.getAccount().equals(validAccount))
-          .findFirst().get().getPassword();
-      String username = validAccount.getUsername();
-      String text = "Hello " + validAccount.getFirstName()
-          + ", your username and password for the Internship Management System of Mekelle University is "
-          + "<br>\"Username\"->" + username + "<br>\"Password\"->" + password;
-      emailDtos.add(new EmailDetailsDto(to, subject, text));
-    });
+      validEmailAccounts.forEach(validAccount -> {
+        String to = validAccount.getEmail();
+        String subject = "Notifying User about username and password";
+        String password = validEmailPasswords.stream().filter(op -> op.getAccount().equals(validAccount))
+            .findFirst().get().getPassword();
+        String username = validAccount.getUsername();
+        String text = "<h1>Internship Managmenet System</h1><br/>";
+        text += "Hello " + validAccount.getFirstName()
+            + ", your username and password for the Internship Management System of Mekelle University is "
+            + "<br>\"Username\"->" + username + "<br>\"Password\"->" + password;
+        emailDtos.add(new EmailDetailsDto(to, subject, text));
+      });
 
-    System.out.println("The list of Email Dtos are ");
-    emailDtos.forEach(emailDto -> System.out.println(emailDto));
+      System.out.println("The list of Email Dtos are ");
+      emailDtos.forEach(emailDto -> System.out.println(emailDto));
 
-    bulkEmailService.sendBulkEmails(emailDtos);
-
+      // bulkEmailService.sendBulkEmails(emailDtos);
+      return Map.of("result", "success", "message", "Successfully Notified the ones with valid Emails!");
+    } catch (Exception ex) {
+      System.out.println(("an error occured while sending the emails"));
+      System.out.println(ex);
+      ex.printStackTrace();
+      return Map.of("result", "error", "message", "an error occured while sending the emails");
+    }
   }
 
   private boolean validateEmail(String email) {
@@ -320,6 +329,12 @@ public class AdministratorService {
 
   public List<? extends Account> getAccountsByUsername(String username) {
     List<Account> accounts = accountRepository.findByUsernameContainingIgnoreCase(username);
+    setPasswords(accounts);
+    return accounts;
+  }
+
+  public List<Account> getAccountsBySearchTerm(String searchTerm) {
+    List<Account> accounts = accountRepository.findBySearchTerm(searchTerm);
     setPasswords(accounts);
     return accounts;
   }
