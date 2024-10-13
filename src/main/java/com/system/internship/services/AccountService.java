@@ -58,11 +58,11 @@ public class AccountService {
     return accountDto.build();
   }
 
-  public String updatePassword(PasswordUpdateDto passwordUpdateDto) {
+  public Map<String, Object> updatePassword(PasswordUpdateDto passwordUpdateDto) {
     Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     String current = passwordUpdateDto.getCurrentPassword();
     if (!passwordEncoder.matches(current, currentAccount.getPassword())) {
-      return "The Passwords don't match";
+      return Map.of("result", "failure", "message", "The current password you input is incorrect.");
     }
     String newPassword = passwordUpdateDto.getNewPassword();
     String repeatPassword = passwordUpdateDto.getRepeatPassword();
@@ -74,9 +74,9 @@ public class AccountService {
       }
       currentAccount.setPassword(passwordEncoder.encode(newPassword));
       accountRepository.save(currentAccount);
-      return "Password Changed Successfully! Please don't forget the password";
+      return Map.of("result", "success", "message", "Password Changed Successfully! Please don't forget the password");
     }
-    return "The new and repeated Passwords don't match";
+    return Map.of("result", "failure", "message", "The New and Repeated Passwords don't match");
   }
 
   public Map<String, Object> resetAccountPassword(String username) {

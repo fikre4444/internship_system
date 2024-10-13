@@ -45,7 +45,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(customizer -> customizer
             .requestMatchers("/api/student/hello").hasRole("STUDENT")
             .requestMatchers("/api/staff/hello").hasRole("STAFF")
-            .requestMatchers("/api/admin/**", "/api/auth/login")
+            .requestMatchers("/api/admin/**", "/api/auth/login", "/api/department-coordinator/**")
             .permitAll()
             .requestMatchers("/api/account/forgot-password").permitAll()
             .requestMatchers("/api/account/**").authenticated()

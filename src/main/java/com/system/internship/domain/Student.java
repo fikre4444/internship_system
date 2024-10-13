@@ -1,8 +1,13 @@
 package com.system.internship.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +17,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
+import java.util.Set;
 
 import com.system.internship.enums.DepartmentEnum;
 
@@ -28,6 +34,16 @@ public class Student extends Account {
   private DepartmentEnum department;
   private String stream;
   private Float grade;
+
+  @ManyToOne
+  @JoinColumn(name = "assigned_internship_opportunity_id") // Customize the foreign key column name
+  private InternshipOpportunity assignedInternship;
+
+  private String assignedInternshipStatus; // whether pending or final
+
+  // the many to many relationship of internship applictions
+  @OneToMany(mappedBy = "student")
+  private Set<InternshipApplication> internshipApplications;
 
   @Override
   public boolean equals(Object o) {
