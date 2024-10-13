@@ -19,6 +19,7 @@ public class HeadInternshipCoordinatorService {
   private InternshipOpportunityRepository ioRepo;
 
   public Map<String, Object> saveInternshipOpportunity(InternshipOpportunityDto iod) {
+    // TODO might need to check for uniqueness i don't know a way yet
     InternshipOpportunity io = convertToInternshipOpportunity(iod);
     InternshipOpportunity savedIo = ioRepo.save(io);
     return Map.of("result", "success", "message", "posted internship successfully.", "internshipOpportunity", savedIo);
