@@ -19,4 +19,14 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
   }
 
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
+    ex.printStackTrace();
+    System.out.println(ex);
+    ErrorResponse errorResponse = new ErrorResponse();
+    errorResponse.setErrorType("GENERAL_EXCEPTION_OCCURED");
+    errorResponse.setMessage("Check the console for the actual exception trace.");
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+  }
+
 }
