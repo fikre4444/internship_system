@@ -19,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.system.internship.enums.DepartmentEnum;
 
 @ToString(callSuper = true)
@@ -42,7 +43,8 @@ public class Student extends Account {
   private String assignedInternshipStatus; // whether pending or final
 
   // the many to many relationship of internship applictions
-  @OneToMany(mappedBy = "student")
+  @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+  // @JsonIgnore
   private Set<InternshipApplication> internshipApplications;
 
   @Override

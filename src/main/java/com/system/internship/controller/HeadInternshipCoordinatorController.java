@@ -1,5 +1,7 @@
 package com.system.internship.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,11 @@ public class HeadInternshipCoordinatorController {
 
     return ResponseEntity.ok(hics.saveInternshipOpportunity(iod));
 
+  }
+
+  @PostMapping("/post-internship-opportunities")
+  public ResponseEntity<?> postInternships(@RequestBody List<InternshipOpportunityDto> iodList) {
+    return ResponseEntity.ok(hics.saveInternshipOpportunities(iodList));
   }
 
 }

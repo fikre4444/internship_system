@@ -43,7 +43,7 @@ public class SecurityConfig {
         .cors(customizer -> customizer.disable())
         .httpBasic(customizer -> customizer.disable())
         .authorizeHttpRequests(customizer -> customizer
-            .requestMatchers("/api/student/hello").hasRole("STUDENT")
+            .requestMatchers("/api/student/**").hasRole("STUDENT")
             .requestMatchers("/api/staff/hello").hasRole("STAFF")
             .requestMatchers("/api/admin/**", "/api/auth/login", "/api/department-coordinator/**",
                 "/api/head-coordinator/**")

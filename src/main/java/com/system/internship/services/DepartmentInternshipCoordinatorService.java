@@ -12,6 +12,7 @@ import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.InternshipOpportunityRepository;
 import com.system.internship.repository.StudentRepository;
+import com.system.internship.util.HashUtil;
 
 @Service
 public class DepartmentInternshipCoordinatorService {
@@ -38,6 +39,8 @@ public class DepartmentInternshipCoordinatorService {
     InternshipOpportunity io = InternshipOpportunity.builder()
         .companyName(companyName).department(student.getDepartment()).internshipStatus("FILLED")
         .location(location).typeOfInternship("SELF_PROVIDED").build();
+    io.setUniqueIdentifier(
+        HashUtil.generateHashFromInternshipOpportunity(companyName, location, student.getDepartment()));
     // save the internship opportunity and get the saved one
     InternshipOpportunity savedOne = internshipOpRepo.save(io);
     student.setAssignedInternship(savedOne); // set the svaed one to the student
