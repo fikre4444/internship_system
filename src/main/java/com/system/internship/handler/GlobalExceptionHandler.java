@@ -20,7 +20,11 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
+  public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) throws Exception {
+    if (ex instanceof org.springframework.security.core.AuthenticationException ||
+        ex instanceof org.springframework.security.access.AccessDeniedException) {
+      throw ex; // Let Spring Security handle these exceptions
+    }
     ex.printStackTrace();
     System.out.println(ex);
     ErrorResponse errorResponse = new ErrorResponse();

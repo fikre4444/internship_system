@@ -24,6 +24,7 @@ public class EmailService {
         if (!validateEmail(to)) { // if it's not valid
           throw new MessagingException();
         }
+        System.out.println("so far so good");
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 

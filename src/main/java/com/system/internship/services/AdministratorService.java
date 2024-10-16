@@ -144,7 +144,7 @@ public class AdministratorService {
       System.out.println("The list of Email Dtos are ");
       emailDtos.forEach(emailDto -> System.out.println(emailDto));
 
-      // bulkEmailService.sendBulkEmails(emailDtos);
+      bulkEmailService.sendBulkEmails(emailDtos);
       return Map.of("result", "success", "message", "Successfully Notified the ones with valid Emails!");
     } catch (Exception ex) {
       System.out.println(("an error occured while sending the emails"));

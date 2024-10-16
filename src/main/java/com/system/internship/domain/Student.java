@@ -44,7 +44,7 @@ public class Student extends Account {
 
   // the many to many relationship of internship applictions
   @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
-  // @JsonIgnore
+  @JsonIgnore
   private Set<InternshipApplication> internshipApplications;
 
   @Override

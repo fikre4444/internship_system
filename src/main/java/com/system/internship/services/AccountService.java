@@ -11,6 +11,7 @@ import com.system.internship.domain.Staff;
 import com.system.internship.domain.Student;
 import com.system.internship.dto.AccountDto;
 import com.system.internship.dto.PasswordUpdateDto;
+import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.OpenPasswordRepository;
 import com.system.internship.util.PasswordGenerator;
@@ -46,6 +47,9 @@ public class AccountService {
     val accountDto = AccountDto.builder();
 
     Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    // Student student = (Student) currentAccount;
+    // student.setInternshipApplications(null);
+
     System.out.println(currentAccount);
     Optional<OpenPassword> openOpt = opRepo.findByAccount(currentAccount);
     if (openOpt.isPresent()) { // if the password exists in the openpassword table then it needs reset
@@ -94,57 +98,42 @@ public class AccountService {
     return Map.of("result", "failure", "password", null);
   }
 
-  public String resetPasswordThroughEmail(String username, String inputtedPassword) {
+  public Map<String, Object> resetPasswordThroughEmail(String username, String inputtedPassword) {
     Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    if (accountOpt.isPresent()) {
-      Account account = accountOpt.get();
-      account.setPassword(passwordEncoder.encode(inputtedPassword));
-      Optional<OpenPassword> op = opRepo.findByAccount(account);
-      if (op.isPresent()) { // if there was an open password then remove it
-        opRepo.delete(op.get());
-      }
-      accountRepository.save(account);
-      return "Account Password Reset Successfully!";
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
     }
-    return "There was an error trying to reset your password, please try again later!";
+    Account account = accountOpt.get();
+    account.setPassword(passwordEncoder.encode(inputtedPassword));
+    Optional<OpenPassword> op = opRepo.findByAccount(account);
+    if (op.isPresent()) { // if there was an open password then remove it
+      opRepo.delete(op.get());
+    }
+    accountRepository.save(account);
+    return Map.of("result", "success", "message", "successfully changed the password, please don't forget it.");
   }
 
-  public String forgotPassword(String username) {
-
+  public Map<String, Object> forgotPassword(String username) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
+    }
+    Account account = accountOpt.get();
     String passwordResetToken = jwtService.generateTokenForPasswordReset(username);
-    String email = getEmailFromUsername(username);
-    if (passwordResetToken == null || email == null) { // if the user doesn't exis
-      return "The username doesn't exist please contact the administrator!";
+    String email = account.getEmail();
+    if (email == null || email.equals("")) { // if the user doesn't exis
+      return Map.of("result", "failure", "message",
+          "You don't have an email for your account, contact your administrator!");
     }
     String link = "http://192.168.1.11:5173/reset-password?token=" + passwordResetToken;
-    String content = "Dear user, you have requested a password reset request click the link below to reset the password";
+    String content = "Dear " + account.getFirstName()
+        + ", you have requested a password reset request click the link below to reset the password";
     content += "<br>If you haven't requested this, ignore the message.<br>";
     content += link;
     content += "<br>Note that the Link only works for 15 minutes";
     emailService.sendEmail(email, "password reset", content);
-    return "The password Link was sent to your corresponding email check it and click the link!";
-
+    return Map.of("result", "success", "message",
+        "The password Link was sent to your corresponding email check it and click the link!");
   }
 
-  public String getEmailFromUsername(String username) {
-    String email = null;
-    Optional<Account> actOpt = accountRepository.findByUsername(username);
-    if (actOpt.isPresent()) {
-      Account account = actOpt.get();
-      if (emailService.validateEmail(account.getEmail())) {
-        email = account.getEmail();
-      }
-    }
-
-    return email;
-  }
-
-  public Account checkAccountExistenceFromUsername(String username) {
-    Optional<Account> accountOpt = accountRepository.findByUsername(username);
-    Account account = null;
-    if (accountOpt.isPresent()) {
-      account = accountOpt.get();
-    }
-    return account;
-  }
 }
