@@ -136,4 +136,25 @@ public class AccountService {
         "The password Link was sent to your corresponding email check it and click the link!");
   }
 
+  public String getEmailFromUsername(String username) {
+    String email = null;
+    Optional<Account> actOpt = accountRepository.findByUsername(username);
+    if (actOpt.isPresent()) {
+      Account account = actOpt.get();
+      if (emailService.validateEmail(account.getEmail())) {
+        email = account.getEmail();
+      }
+    }
+
+    return email;
+  }
+
+  public Account checkAccountExistenceFromUsername(String username) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    Account account = null;
+    if (accountOpt.isPresent()) {
+      account = accountOpt.get();
+    }
+    return account;
+  }
 }
