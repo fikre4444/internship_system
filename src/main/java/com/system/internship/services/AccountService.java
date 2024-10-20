@@ -14,6 +14,7 @@ import com.system.internship.dto.PasswordUpdateDto;
 import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.OpenPasswordRepository;
+import com.system.internship.util.LazyNullifier;
 import com.system.internship.util.PasswordGenerator;
 
 import java.util.Optional;
@@ -49,8 +50,14 @@ public class AccountService {
     Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     // Student student = (Student) currentAccount;
     // student.setInternshipApplications(null);
+    try {
+      // Nullify uninitialized lazy fields
+      currentAccount = LazyNullifier.nullifyLazyFields(currentAccount);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException("Error nullifying lazy fields", e);
+    }
 
-    System.out.println(currentAccount);
+    // System.out.println(currentAccount);
     Optional<OpenPassword> openOpt = opRepo.findByAccount(currentAccount);
     if (openOpt.isPresent()) { // if the password exists in the openpassword table then it needs reset
       accountDto.passwordNeedChange(true);
