@@ -2,11 +2,16 @@ package com.system.internship.services;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.system.internship.domain.Account;
 import com.system.internship.domain.InternshipOpportunity;
+import com.system.internship.domain.Staff;
 import com.system.internship.domain.Student;
 import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
@@ -47,6 +52,34 @@ public class DepartmentInternshipCoordinatorService {
     student.setAssignedInternshipStatus("PENDING");
     studentRepo.save(student);
     return Map.of("result", "success", "message", "the student has been assigned their own internship successfully.");
+  }
+
+  public List<Account> getStudents(String searchTerm) {
+    List<Account> accounts = accountRepo.findBySearchTerm(searchTerm);
+    nullifyPasswords(accounts); // to hide the passwords
+    // so that he doesn't include staff and himself here.
+    accounts = accounts.stream().filter(account -> {
+      return account instanceof Student;
+    }).collect(Collectors.toList());
+    // only send the students with same department as the department coordinator
+    List<Account> filteredAccounts = filterByMyDepartment(accounts);
+    return filteredAccounts;
+  }
+
+  public void nullifyPasswords(List<Account> accounts) {
+    accounts.forEach(account -> {
+      account.setPassword(null);
+    });
+  }
+
+  public List<Account> filterByMyDepartment(List<Account> accounts) {
+    Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Staff departmentCoodinator = (Staff) currentAccount;
+    List<Account> filteredAccount = accounts.stream().filter(account -> {
+      Student student = (Student) account;
+      return student.getDepartment().equals(departmentCoodinator.getDepartment());
+    }).collect(Collectors.toList());
+    return filteredAccount;
   }
 
 }
