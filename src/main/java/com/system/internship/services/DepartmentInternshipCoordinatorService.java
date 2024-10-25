@@ -51,7 +51,8 @@ public class DepartmentInternshipCoordinatorService {
     student.setAssignedInternship(savedOne); // set the svaed one to the student
     student.setAssignedInternshipStatus("PENDING");
     studentRepo.save(student);
-    return Map.of("result", "success", "message", "the student has been assigned their own internship successfully.");
+    return Map.of("result", "success", "message", "the student has been assigned their own internship successfully.",
+        "internship", savedOne);
   }
 
   public List<Account> getStudents(String searchTerm) {
@@ -59,7 +60,7 @@ public class DepartmentInternshipCoordinatorService {
     nullifyPasswords(accounts); // to hide the passwords
     // so that he doesn't include staff and himself here.
     accounts = accounts.stream().filter(account -> {
-      return account instanceof Student;
+      return (account instanceof Student && account.isEnabled());
     }).collect(Collectors.toList());
     // only send the students with same department as the department coordinator
     List<Account> filteredAccounts = filterByMyDepartment(accounts);
