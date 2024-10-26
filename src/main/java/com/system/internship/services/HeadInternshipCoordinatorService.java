@@ -46,7 +46,7 @@ public class HeadInternshipCoordinatorService {
         .pocketMoney(iod.isPocketMoney()).internshipStatus(iod.getInternshipStatus())
         .typeOfInternship("MU_PROVIDED")
         .uniqueIdentifier(
-            HashUtil.generateHashFromInternshipOpportunity(
+            HashUtil.generateHashFromInternshipOpportunityMU(
                 iod.getCompanyName(),
                 iod.getLocation(),
                 iod.getDepartment()))

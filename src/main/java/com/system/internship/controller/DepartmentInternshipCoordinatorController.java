@@ -40,6 +40,11 @@ public class DepartmentInternshipCoordinatorController {
     return ResponseEntity.ok(departmentCoordinatorService.addSelfInternship(requestBody));
   }
 
+  @PostMapping("/edit-self-internship")
+  public ResponseEntity<?> editSelfInternship(@RequestBody Map<String, String> requestBody) {
+    return ResponseEntity.ok(departmentCoordinatorService.editSelfInternship(requestBody));
+  }
+
   @GetMapping("/get-students")
   public ResponseEntity<?> getStudents(@RequestParam String searchTerm) {
     return ResponseEntity.ok(departmentCoordinatorService.getStudents(searchTerm));

@@ -25,6 +25,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -61,6 +62,9 @@ public class Account implements UserDetails {
 
   @Enumerated(EnumType.STRING)
   private GenderEnum gender;
+
+  @OneToOne(mappedBy = "associatedAccount", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  private ChatId chatId;
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(name = "account_role", joinColumns = @JoinColumn(name = "account_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

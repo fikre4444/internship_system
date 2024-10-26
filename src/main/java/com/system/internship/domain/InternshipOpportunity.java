@@ -25,9 +25,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(uniqueConstraints = {
-    @UniqueConstraint(columnNames = { "companyName", "location", "department" })
-})
 public class InternshipOpportunity {
 
   @Id

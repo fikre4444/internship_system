@@ -30,6 +30,8 @@ public class DepartmentInternshipCoordinatorService {
   InternshipOpportunityRepository internshipOpRepo;
 
   public Map<String, Object> addSelfInternship(Map<String, String> requestBody) {
+    // TODO fix it when you add the same self internship
+    // maybe just don't save it and then just increment the noOfStudents
     String username = requestBody.get("username");
     String companyName = requestBody.get("companyName");
     // the department can be known from the student
@@ -45,7 +47,8 @@ public class DepartmentInternshipCoordinatorService {
         .companyName(companyName).department(student.getDepartment()).internshipStatus("FILLED")
         .location(location).typeOfInternship("SELF_PROVIDED").build();
     io.setUniqueIdentifier(
-        HashUtil.generateHashFromInternshipOpportunity(companyName, location, student.getDepartment()));
+        HashUtil.generateHashFromInternshipOpportunitySelf(companyName, location, student.getDepartment(),
+            student.getUsername()));
     // save the internship opportunity and get the saved one
     InternshipOpportunity savedOne = internshipOpRepo.save(io);
     student.setAssignedInternship(savedOne); // set the svaed one to the student
@@ -81,6 +84,36 @@ public class DepartmentInternshipCoordinatorService {
       return student.getDepartment().equals(departmentCoodinator.getDepartment());
     }).collect(Collectors.toList());
     return filteredAccount;
+  }
+
+  public Map<String, Object> editSelfInternship(Map<String, String> requestBody) {
+    String username = requestBody.get("username");
+    String companyName = requestBody.get("companyName");
+    // the department can be known from the student
+    // String department = requestBody.get("department");
+    String location = requestBody.get("location");
+    Optional<Student> studentOpt = studentRepo.findByUsername(username);
+    if (!studentOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
+    }
+    Student student = studentOpt.get();
+    InternshipOpportunity existingIo = student.getAssignedInternship();
+    // create the internship opportunity
+    InternshipOpportunity io = InternshipOpportunity.builder()
+        .companyName(companyName).department(student.getDepartment()).internshipStatus("FILLED")
+        .location(location).typeOfInternship("SELF_PROVIDED").build();
+    io.setUniqueIdentifier(
+        HashUtil.generateHashFromInternshipOpportunitySelf(companyName, location, student.getDepartment(),
+            student.getUsername()));
+    // save the internship opportunity and get the saved one
+    InternshipOpportunity savedOne = internshipOpRepo.save(io);
+    student.setAssignedInternship(savedOne); // set the svaed one to the student
+    student.setAssignedInternshipStatus("PENDING");
+    studentRepo.save(student);
+    // delete the existing internship
+    internshipOpRepo.delete(existingIo);
+    return Map.of("result", "success", "message", "the student has been assigned their own internship successfully.",
+        "internship", savedOne);
   }
 
 }
