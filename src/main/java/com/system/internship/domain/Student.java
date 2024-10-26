@@ -43,7 +43,7 @@ public class Student extends Account {
   private String assignedInternshipStatus; // whether pending or final
 
   // the many to many relationship of internship applictions
-  @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "student", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
   // @JsonIgnore
   private Set<InternshipApplication> internshipApplications;
 

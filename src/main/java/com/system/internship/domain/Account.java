@@ -63,6 +63,7 @@ public class Account implements UserDetails {
   @Enumerated(EnumType.STRING)
   private GenderEnum gender;
 
+  @JsonIgnore
   @OneToOne(mappedBy = "associatedAccount", cascade = CascadeType.REMOVE, orphanRemoval = true)
   private ChatId chatId;
 

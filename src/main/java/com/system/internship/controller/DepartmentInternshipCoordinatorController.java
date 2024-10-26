@@ -50,4 +50,9 @@ public class DepartmentInternshipCoordinatorController {
     return ResponseEntity.ok(departmentCoordinatorService.getStudents(searchTerm));
   }
 
+  @PostMapping("/notify-student-about-internship-add")
+  public ResponseEntity<?> notifyStudentAboutInternshipAdd(@RequestBody Map<String, String> requestBody) {
+    return ResponseEntity.ok(departmentCoordinatorService.notifyStudentAboutInternshipAdd(requestBody));
+  }
+
 }

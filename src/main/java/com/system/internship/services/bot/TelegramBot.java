@@ -82,6 +82,9 @@ public class TelegramBot implements SpringLongPollingBot, LongPollingSingleThrea
 
       // Process commands
       switch (messageText) {
+        case "/start":
+          sendMessage(chatId, "Hi! Choose a command from the menu.");
+          break;
         case "/description":
           sendMessage(chatId,
               "Hello User, this is a bot used for the Mekelle University Internship Managment System, as a Notification System. If you are Registered in the Internship Management system, please register here by using your username and password of the IMS.");
@@ -153,10 +156,11 @@ public class TelegramBot implements SpringLongPollingBot, LongPollingSingleThrea
     return false;
   }
 
-  private void sendMessage(long chatId, String text) {
+  public void sendMessage(long chatId, String text) {
     SendMessage message = SendMessage.builder()
         .chatId(chatId)
         .text(text)
+        .parseMode("HTML")
         .build();
     try {
       telegramClient.execute(message);

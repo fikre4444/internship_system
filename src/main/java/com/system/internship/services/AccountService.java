@@ -48,14 +48,13 @@ public class AccountService {
     val accountDto = AccountDto.builder();
 
     Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    // Student student = (Student) currentAccount;
-    // student.setInternshipApplications(null);
-    try {
-      // Nullify uninitialized lazy fields
-      currentAccount = LazyNullifier.nullifyLazyFields(currentAccount);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException("Error nullifying lazy fields", e);
-    }
+
+    // try {
+    // // Nullify uninitialized lazy fields
+    // currentAccount = LazyNullifier.nullifyLazyFields(currentAccount);
+    // } catch (IllegalAccessException e) {
+    // throw new RuntimeException("Error nullifying lazy fields", e);
+    // }
 
     // System.out.println(currentAccount);
     Optional<OpenPassword> openOpt = opRepo.findByAccount(currentAccount);

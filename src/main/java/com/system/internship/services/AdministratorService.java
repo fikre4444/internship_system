@@ -282,7 +282,7 @@ public class AdministratorService {
         || typeUser.equalsIgnoreCase("STUDENT")) {
       List<Student> students = studentRepository.findByDepartment(departmentEnum);
       deleteOpenPasswordsOfAccounts(students);
-      studentRepository.deleteStudentsByDepartment(departmentEnum);
+      studentRepository.deleteAll(students);
       accounts.addAll(students);
     }
     if (typeUser.equalsIgnoreCase("BOTH")

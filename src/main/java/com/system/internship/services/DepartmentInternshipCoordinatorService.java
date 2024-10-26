@@ -17,6 +17,7 @@ import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.InternshipOpportunityRepository;
 import com.system.internship.repository.StudentRepository;
+import com.system.internship.services.bot.TelegramBot;
 import com.system.internship.util.HashUtil;
 
 @Service
@@ -28,6 +29,8 @@ public class DepartmentInternshipCoordinatorService {
   StudentRepository studentRepo;
   @Autowired
   InternshipOpportunityRepository internshipOpRepo;
+  @Autowired
+  TelegramBot telegramBot;
 
   public Map<String, Object> addSelfInternship(Map<String, String> requestBody) {
     // TODO fix it when you add the same self internship
@@ -114,6 +117,27 @@ public class DepartmentInternshipCoordinatorService {
     internshipOpRepo.delete(existingIo);
     return Map.of("result", "success", "message", "the student has been assigned their own internship successfully.",
         "internship", savedOne);
+  }
+
+  public Map<String, Object> notifyStudentAboutInternshipAdd(Map<String, String> requestBody) {
+    String username = requestBody.get("username");
+    String typeOfNotification = requestBody.get("typeOfNotification");
+    if (typeOfNotification.equals("add_internship")) {
+      Optional<Student> studentOpt = studentRepo.findByUsername(username);
+      if (studentOpt.isPresent()) {
+        Student student = studentOpt.get();
+        long chatId = student.getChatId().getChatId();
+        String firstName = student.getFirstName();
+        String companyName = student.getAssignedInternship().getCompanyName();
+        String location = student.getAssignedInternship().getLocation();
+        String message = "Dear <b>" + firstName
+            + "</b>, Your Department Coordinator has Added the following Internship (that you have provided to them) for you =>\n\n<b>Company Name:"
+            + companyName + "\nLocation:" + location
+            + "</b>\n\nIf you have any problems with this please contact your Department Coordinator";
+        telegramBot.sendMessage(chatId, message);
+      }
+    }
+    return Map.of("result", "success", "message", "The Student Has been notified!");
   }
 
 }
