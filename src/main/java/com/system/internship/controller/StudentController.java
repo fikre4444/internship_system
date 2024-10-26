@@ -32,6 +32,11 @@ public class StudentController {
     return ResponseEntity.ok(studentService.getStudent(username));
   }
 
+  @GetMapping("/get-internships")
+  public ResponseEntity<?> getInternships(@RequestParam String username) {
+    return ResponseEntity.ok(studentService.getInternships(username));
+  }
+
   @PostMapping("/apply-internships")
   public ResponseEntity<?> applyInternships(@RequestBody InternshipApplicationDto applications) {
     return ResponseEntity.ok(studentService.applyInternships(applications));

@@ -14,8 +14,6 @@ import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.repository.InternshipOpportunityRepository;
 import com.system.internship.util.HashUtil;
 
-import jakarta.persistence.Column;
-
 @Service
 public class HeadInternshipCoordinatorService {
 

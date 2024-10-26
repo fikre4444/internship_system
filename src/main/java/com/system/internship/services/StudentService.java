@@ -16,6 +16,7 @@ import com.system.internship.domain.InternshipOpportunity;
 import com.system.internship.domain.Student;
 import com.system.internship.dto.InternshipApplicationDto;
 import com.system.internship.dto.SingleInternshipApplicationDto;
+import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.InternshipApplicationRepository;
@@ -88,6 +89,22 @@ public class StudentService {
     Student student = studentOpt.get();
     Set<InternshipApplication> ias = student.getInternshipApplications();
     return student;
+  }
+
+  public List<InternshipOpportunity> getInternships(String username) {
+    Optional<Student> studentOpt = studentRepo.findByUsername(username);
+    if (!studentOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
+    }
+    Student student = studentOpt.get();
+    DepartmentEnum departmentEnum = student.getDepartment();
+    List<InternshipOpportunity> internships = ioRepo.findAllByDepartment(departmentEnum);
+    List<InternshipOpportunity> muProvidedInternships = internships.stream()
+        .filter(internship -> {
+          return internship.getTypeOfInternship().equals("MU_PROVIDED");
+        })
+        .collect(Collectors.toList());
+    return muProvidedInternships;
   }
 
 }
