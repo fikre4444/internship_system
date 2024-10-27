@@ -1,6 +1,9 @@
 package com.system.internship.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.system.internship.serializer.DepartmentSerializer;
+import com.system.internship.serializer.InternshipApplicationSerializer;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,20 +29,21 @@ import lombok.NoArgsConstructor;
 })
 // the above constraint serves as a primary key constraint for the combination
 // of student and internship opportunity
+@JsonSerialize(using = InternshipApplicationSerializer.class)
 public class InternshipApplication {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "student_id", nullable = false)
-  @JsonIgnore
+  // @JsonIgnore
   private Student student;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "internship_opportunity_id", nullable = false)
-  @JsonIgnore
+  // @JsonIgnore
   private InternshipOpportunity internshipOpportunity;
 
   private Integer priority; // Additional column for priority

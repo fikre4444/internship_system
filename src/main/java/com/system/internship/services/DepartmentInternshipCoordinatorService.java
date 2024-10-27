@@ -29,7 +29,7 @@ public class DepartmentInternshipCoordinatorService {
   StudentRepository studentRepo;
   @Autowired
   InternshipOpportunityRepository internshipOpRepo;
-  @Autowired
+  @Autowired(required = false)
   TelegramBot telegramBot;
 
   public Map<String, Object> addSelfInternship(Map<String, String> requestBody) {
@@ -134,6 +134,10 @@ public class DepartmentInternshipCoordinatorService {
             + "</b>, Your Department Coordinator has Added the following Internship (that you have provided to them) for you =>\n\n<b>Company Name:"
             + companyName + "\nLocation:" + location
             + "</b>\n\nIf you have any problems with this please contact your Department Coordinator";
+        if (telegramBot == null) {
+          return Map.of("result", "failure", "message",
+              "You are not connected to the internet, message not sent through telegram.");
+        }
         telegramBot.sendMessage(chatId, message);
       }
     }

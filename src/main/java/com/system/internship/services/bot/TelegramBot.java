@@ -2,6 +2,7 @@ package com.system.internship.services.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -15,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import com.system.internship.config.InternetConnectivityCondition;
 import com.system.internship.domain.Account;
 import com.system.internship.domain.ChatId;
 import com.system.internship.dto.LoginDto;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
+@Conditional(InternetConnectivityCondition.class)
 public class TelegramBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
   private final TelegramClient telegramClient;
   private final Map<Long, Boolean> awaitingCredentials = new HashMap<>();

@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -48,8 +49,8 @@ public class InternshipOpportunity {
 
   private String internshipStatus; // whether available or filled
 
-  @OneToMany(mappedBy = "internshipOpportunity")
-  @JsonIgnore
+  @OneToMany(mappedBy = "internshipOpportunity", fetch = FetchType.EAGER)
+  // @JsonIgnore
   private Set<InternshipApplication> internshipApplications;
 
 }
