@@ -145,9 +145,46 @@ public class HeadInternshipCoordinatorService {
       System.out.println();
     });
 
-    tempRepo.saveAll(temporaryPlacements);
+    // tempRepo.saveAll(temporaryPlacements);
+    List<TemporaryPlacement> temporaryPlacementsEssentials = getImportantDetails(temporaryPlacements);
 
-    return Map.of("result", "success", "message", "Very Good");
+    return Map.of("result", "success", "message", "Students Have been placed successfully.", "temporaryPlacements",
+        temporaryPlacementsEssentials);
+  }
+
+  public List<TemporaryPlacement> getImportantDetails(List<TemporaryPlacement> temporaryPlacements) {
+    List<TemporaryPlacement> importantDetails = new ArrayList<>();
+    temporaryPlacements.forEach(temporaryPlacement -> {
+      Student student = temporaryPlacement.getStudent();
+      student.setPassword(null);
+      student.setRoles(null);
+      student.setDepartment(null);
+      student.setStream(null);
+      student.getInternshipApplications().forEach(internshipApplication -> {
+        internshipApplication.setStudent(null);
+      });
+      temporaryPlacement.setStudent(student);
+
+      InternshipOpportunity io = temporaryPlacement.getInternshipOpportunity();
+      io.setId(null);
+      io.setDepartment(null);
+      temporaryPlacement.setInternshipOpportunity(io);
+      importantDetails.add(temporaryPlacement);
+    });
+
+    return importantDetails;
+  }
+
+  public boolean checkAllStudentsApplied(String department) {
+    // how to check that
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
+    List<Student> students = studentRepo.findByDepartment(departmentEnum);
+    for (Student student : students) {
+      if (student.getInternshipApplications().size() < 1) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

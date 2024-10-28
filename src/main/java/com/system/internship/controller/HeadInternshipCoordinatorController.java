@@ -44,4 +44,9 @@ public class HeadInternshipCoordinatorController {
     return ResponseEntity.ok(hics.assignInternships(department));
   }
 
+  @GetMapping("/check-all-students-applied")
+  public ResponseEntity<?> checkAllStudentsApplied(@RequestParam String department) {
+    return ResponseEntity.ok(hics.checkAllStudentsApplied(department));
+  }
+
 }

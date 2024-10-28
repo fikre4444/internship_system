@@ -13,8 +13,10 @@ public class InternshipApplicationSerializer extends JsonSerializer<InternshipAp
   public void serialize(InternshipApplication internshipApplication, JsonGenerator jsonGenerator,
       SerializerProvider serializerProvider)
       throws IOException {
-    internshipApplication.getStudent().setInternshipApplications(null);
-    internshipApplication.getInternshipOpportunity().setInternshipApplications(null);
+    if (internshipApplication.getStudent() != null)
+      internshipApplication.getStudent().setInternshipApplications(null);
+    if (internshipApplication.getInternshipOpportunity() != null)
+      internshipApplication.getInternshipOpportunity().setInternshipApplications(null);
     jsonGenerator.writeStartObject();
     jsonGenerator.writeObjectField("student", internshipApplication.getStudent());
     jsonGenerator.writeObjectField("internshipOpportunity", internshipApplication.getInternshipOpportunity());
