@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.system.internship.domain.InternshipOpportunity;
@@ -36,6 +37,11 @@ public class HeadInternshipCoordinatorController {
   @PostMapping("/post-internship-opportunities")
   public ResponseEntity<?> postInternships(@RequestBody List<InternshipOpportunityDto> iodList) {
     return ResponseEntity.ok(hics.saveInternshipOpportunities(iodList));
+  }
+
+  @PostMapping("/apply-internships")
+  public ResponseEntity<?> assignInternships(@RequestParam String department) {
+    return ResponseEntity.ok(hics.assignInternships(department));
   }
 
 }
