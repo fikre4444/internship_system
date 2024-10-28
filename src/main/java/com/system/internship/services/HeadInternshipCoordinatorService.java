@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import com.system.internship.domain.InternshipApplication;
 import com.system.internship.domain.InternshipOpportunity;
 import com.system.internship.domain.Student;
 import com.system.internship.domain.TemporaryPlacement;
+import com.system.internship.dto.InternshipChangeRequestDto;
 import com.system.internship.dto.InternshipOpportunityDto;
 import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.repository.InternshipApplicationRepository;
@@ -145,7 +147,7 @@ public class HeadInternshipCoordinatorService {
       System.out.println();
     });
 
-    // tempRepo.saveAll(temporaryPlacements);
+    tempRepo.saveAll(temporaryPlacements);
     List<TemporaryPlacement> temporaryPlacementsEssentials = getImportantDetails(temporaryPlacements);
 
     return Map.of("result", "success", "message", "Students Have been placed successfully.", "temporaryPlacements",
@@ -185,6 +187,59 @@ public class HeadInternshipCoordinatorService {
       }
     }
     return true;
+  }
+
+  public Map<String, Object> confirmPlacements(String department) {
+    // first fetch the ones with the department
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
+    List<InternshipOpportunity> iOpportunities = ioRepo.findAllByDepartment(departmentEnum);
+    List<InternshipOpportunity> filteredForMu = iOpportunities.stream().filter(opportunity -> {
+      return opportunity.getTypeOfInternship().equals("MU_PROVIDED");
+    }).collect(Collectors.toList());
+    List<TemporaryPlacement> tempos = tempRepo.findAllByInternshipOpportunityIn(filteredForMu);
+    tempos.forEach(tempo -> {
+      tempo.setConfirmed_by_coordinator(true);
+    });
+    tempRepo.saveAll(tempos);
+    return Map.of("result", "success", "message", "successfully confirmed it");
+  }
+
+  public Map<String, Object> applyPlacementChanges(List<InternshipChangeRequestDto> listOfChanges) {
+    // List<String> uniqueIdentifiers = listOfChanges.stream()
+    // .map(change ->
+    // change.getInternshipOpportunityUniqueIdentifier()).collect(Collectors.toList());
+    // List<InternshipOpportunity> ios =
+    // ioRepo.findAllByUniqueIdentifierIn(uniqueIdentifiers);
+    // List<Student> students =
+    // List<TemporaryPlacement> tempos =
+    // tempRepo.findAllByInternshipOpportunityIn(ios);
+    listOfChanges.forEach(change -> {
+      Optional<Student> studentOpt = studentRepo.findByUsername(change.getStudentUsername());
+      if (studentOpt.isPresent()) {
+        Student student = studentOpt.get();
+        Optional<InternshipOpportunity> ioOpt = ioRepo
+            .findByUniqueIdentifier(change.getInternshipOpportunityUniqueIdentifier());
+        if (ioOpt.isPresent()) {
+          InternshipOpportunity io = ioOpt.get();
+          Optional<TemporaryPlacement> tempoOpt = tempRepo.findByStudent(student);
+          if (tempoOpt.isPresent()) {
+            TemporaryPlacement temporary = tempoOpt.get();
+            temporary.setInternshipOpportunity(io);
+            temporary.setPriority(change.getPriority());
+            tempRepo.save(temporary);
+          }
+        }
+      }
+    });
+
+    Optional<Student> studentOpt = studentRepo.findByUsername(listOfChanges.get(0).getStudentUsername());
+    if (studentOpt.isPresent()) {
+      Student student = studentOpt.get();
+      String department = student.getDepartment().name();
+      confirmPlacements(department);
+    }
+
+    return Map.of("result", "success", "message", "successfully applied changes and confirmed it");
   }
 
 }

@@ -33,6 +33,8 @@ public class TemporaryPlacement {
   @ManyToOne
   private InternshipOpportunity internshipOpportunity;
 
+  boolean confirmed_by_coordinator;
+
   int priority;
 
 }
