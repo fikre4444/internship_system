@@ -6,7 +6,8 @@ public enum RoleEnum {
   ROLE_ADVISOR("Advisor"),
   ROLE_HEAD_INTERNSHIP_COORDINATOR("Head Internship Coordinator"),
   ROLE_DEPARTMENT_INTERNSHIP_COORDINATOR("Department Internship Coordinator"),
-  ROLE_ADMINISTRATOR("Administrator");
+  ROLE_ADMINISTRATOR("Administrator"),
+  ROLE_COMPANY_FILLER("Company Filler");
 
   private String name;
 

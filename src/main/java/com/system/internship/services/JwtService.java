@@ -84,6 +84,27 @@ public class JwtService {
         .compact();
   }
 
+  public String generateTokenForCompanyFiller() {
+    String username = "company_filler";
+    final long ONE_DAY = 1000 * 60 * 60 * 24;
+    Map<String, Object> claims = new HashMap<>();
+    Optional<Account> account = accountRepository.findByUsername(username);
+    if (!account.isPresent()) {
+      return null;
+    }
+    claims.put("roles", account.get().getAuthorities().stream()
+        .map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList()));
+    return Jwts.builder()
+        .claims()
+        .add(claims)
+        .subject(username)
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + (ONE_DAY)))
+        .and()
+        .signWith(getKey())
+        .compact();
+  }
+
   private SecretKey getKey() {
     byte[] keyBytes = Decoders.BASE64.decode(secretKey);
     return Keys.hmacShaKeyFor(keyBytes);

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.system.internship.domain.InternshipOpportunity;
+import com.system.internship.dto.CompanyRequestDto;
 import com.system.internship.dto.InternshipChangeRequestDto;
 import com.system.internship.dto.InternshipOpportunityDto;
 import com.system.internship.services.HeadInternshipCoordinatorService;
@@ -59,6 +60,11 @@ public class HeadInternshipCoordinatorController {
   @PutMapping("/apply-changes-to-placements")
   public ResponseEntity<?> applyChanges(@RequestBody List<InternshipChangeRequestDto> listOfChanges) {
     return ResponseEntity.ok(hics.applyPlacementChanges(listOfChanges));
+  }
+
+  @PostMapping("/send-request-to-company")
+  public ResponseEntity<?> sendRequestToCompany(@RequestBody CompanyRequestDto companyRequestDto) {
+    return ResponseEntity.ok(hics.sendRequestToCompany(companyRequestDto));
   }
 
 }

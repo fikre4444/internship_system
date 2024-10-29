@@ -131,7 +131,7 @@ public class AccountService {
       return Map.of("result", "failure", "message",
           "You don't have an email for your account, contact your administrator!");
     }
-    String link = "http://192.168.1.11:5173/reset-password?token=" + passwordResetToken;
+    String link = "http://10.10.11.215:5173/reset-password?token=" + passwordResetToken;
     String content = "Dear " + account.getFirstName()
         + ", you have requested a password reset request click the link below to reset the password";
     content += "<br>If you haven't requested this, ignore the message.<br>";

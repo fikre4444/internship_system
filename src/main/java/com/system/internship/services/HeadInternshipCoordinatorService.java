@@ -17,6 +17,7 @@ import com.system.internship.domain.InternshipApplication;
 import com.system.internship.domain.InternshipOpportunity;
 import com.system.internship.domain.Student;
 import com.system.internship.domain.TemporaryPlacement;
+import com.system.internship.dto.CompanyRequestDto;
 import com.system.internship.dto.InternshipChangeRequestDto;
 import com.system.internship.dto.InternshipOpportunityDto;
 import com.system.internship.enums.DepartmentEnum;
@@ -40,6 +41,12 @@ public class HeadInternshipCoordinatorService {
 
   @Autowired
   private TemporaryPlacementRepository tempRepo;
+
+  @Autowired
+  private JwtService jwtService;
+
+  @Autowired
+  private EmailService emailService;
 
   public Map<String, Object> saveInternshipOpportunity(InternshipOpportunityDto iod) {
     InternshipOpportunity io = convertToInternshipOpportunity(iod);
@@ -240,6 +247,20 @@ public class HeadInternshipCoordinatorService {
     }
 
     return Map.of("result", "success", "message", "successfully applied changes and confirmed it");
+  }
+
+  public Map<String, Object> sendRequestToCompany(CompanyRequestDto companyRequestDto) {
+    // generate permission token for inputting internship
+    String companyPermissionToken = jwtService.generateTokenForCompanyFiller();
+    String email = companyRequestDto.getEmail();
+    String link = "http://10.10.11.215:5173/companyPostingPage?token=" + companyPermissionToken;
+
+    String content = companyRequestDto.getMessage();
+    content += link;
+    content += "<br>Note that the Link only works for 1 day";
+    emailService.sendEmail(email, "Mekelle Intenship Form For Filling By the Company", content);
+    return Map.of("result", "success", "message",
+        "The Request Link has Been sent successfully!");
   }
 
 }
