@@ -13,14 +13,17 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.system.internship.domain.CompanyFilledInternshipOpportunity;
 import com.system.internship.domain.InternshipApplication;
 import com.system.internship.domain.InternshipOpportunity;
 import com.system.internship.domain.Student;
 import com.system.internship.domain.TemporaryPlacement;
 import com.system.internship.dto.CompanyRequestDto;
+import com.system.internship.dto.InternshipApprovalDto;
 import com.system.internship.dto.InternshipChangeRequestDto;
 import com.system.internship.dto.InternshipOpportunityDto;
 import com.system.internship.enums.DepartmentEnum;
+import com.system.internship.repository.CompanyFilledInternshipOpportunityRepository;
 import com.system.internship.repository.InternshipApplicationRepository;
 import com.system.internship.repository.InternshipOpportunityRepository;
 import com.system.internship.repository.StudentRepository;
@@ -47,6 +50,12 @@ public class HeadInternshipCoordinatorService {
 
   @Autowired
   private EmailService emailService;
+
+  @Autowired
+  private String baseUrl;
+
+  @Autowired
+  private CompanyFilledInternshipOpportunityRepository cfioRepo;
 
   public Map<String, Object> saveInternshipOpportunity(InternshipOpportunityDto iod) {
     InternshipOpportunity io = convertToInternshipOpportunity(iod);
@@ -83,6 +92,9 @@ public class HeadInternshipCoordinatorService {
   public Map<String, Object> assignInternships(String department) {
     DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
     List<Student> students = studentRepo.findByDepartment(departmentEnum);
+    // here after finding the students we can add grades to each female before we
+    // sort them
+    // but make sure that we don't change it permanently
     List<InternshipOpportunity> internshipOpportunties = ioRepo.findAllByDepartment(departmentEnum)
         .stream().filter(io -> io.getTypeOfInternship().equals("MU_PROVIDED"))
         .collect(Collectors.toList());
@@ -253,7 +265,7 @@ public class HeadInternshipCoordinatorService {
     // generate permission token for inputting internship
     String companyPermissionToken = jwtService.generateTokenForCompanyFiller();
     String email = companyRequestDto.getEmail();
-    String link = "http://10.10.11.215:5173/companyPostingPage?token=" + companyPermissionToken;
+    String link = baseUrl + "/companyPostingPage?token=" + companyPermissionToken;
 
     String content = companyRequestDto.getMessage();
     content += link;
@@ -261,6 +273,35 @@ public class HeadInternshipCoordinatorService {
     emailService.sendEmail(email, "Mekelle Intenship Form For Filling By the Company", content);
     return Map.of("result", "success", "message",
         "The Request Link has Been sent successfully!");
+  }
+
+  public Map<String, Object> getCompanyFilledInternships() {
+
+    List<CompanyFilledInternshipOpportunity> companyFilled = cfioRepo.findAll();
+    return Map.of("result", "success", "message", "The Internships Have been fetched successfully", "internships",
+        companyFilled);
+
+  }
+
+  public Map<String, Object> approveCompanyFilledInternships(InternshipApprovalDto internshipApprovalDto) {
+    // to do convert these into the other and then save all.
+    List<InternshipOpportunity> approvedOnes = internshipApprovalDto.getApproved();
+    if (approvedOnes.size() > 0) {
+      approvedOnes.forEach(io -> {
+        System.out.println(io);
+      });
+    }
+    List<CompanyFilledInternshipOpportunity> rejectedOnes = internshipApprovalDto.getRejected();
+    if (rejectedOnes.size() > 0) {
+      rejectedOnes.forEach(rejected -> {
+        System.out.println(rejected);
+      });
+    }
+    ioRepo.saveAll(approvedOnes);
+    List<Long> approvedIds = approvedOnes.stream().map(approved -> approved.getId()).collect(Collectors.toList());
+    cfioRepo.deleteAllById(approvedIds);
+    cfioRepo.deleteAll(rejectedOnes);
+    return Map.of("result", "ok", "message", "The Internships have been approved successfully");
   }
 
 }

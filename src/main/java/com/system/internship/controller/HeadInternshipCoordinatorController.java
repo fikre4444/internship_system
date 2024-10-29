@@ -1,6 +1,7 @@
 package com.system.internship.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.system.internship.domain.InternshipOpportunity;
 import com.system.internship.dto.CompanyRequestDto;
+import com.system.internship.dto.InternshipApprovalDto;
 import com.system.internship.dto.InternshipChangeRequestDto;
 import com.system.internship.dto.InternshipOpportunityDto;
 import com.system.internship.services.HeadInternshipCoordinatorService;
@@ -65,6 +67,16 @@ public class HeadInternshipCoordinatorController {
   @PostMapping("/send-request-to-company")
   public ResponseEntity<?> sendRequestToCompany(@RequestBody CompanyRequestDto companyRequestDto) {
     return ResponseEntity.ok(hics.sendRequestToCompany(companyRequestDto));
+  }
+
+  @GetMapping("/get-company-filled-internships")
+  public ResponseEntity<?> getCompanyFilledInternships() {
+    return ResponseEntity.ok(hics.getCompanyFilledInternships());
+  }
+
+  @PostMapping("/approve-company-filled-internships")
+  public ResponseEntity<?> approveCompanyFilledInternships(@RequestBody InternshipApprovalDto internshipApprovalDto) {
+    return ResponseEntity.ok(hics.approveCompanyFilledInternships(internshipApprovalDto));
   }
 
 }

@@ -47,9 +47,21 @@ public class InternshipApplication {
 	// @Autowired
 	// RoleService roleService;
 
+	// @Autowired
+	// private String baseUrl;
+
 	public static void main(String[] args) {
 		SpringApplication.run(InternshipApplication.class, args);
 	}
+
+	// @Bean
+	// public CommandLineRunner commandLineRunner() {
+	// return args -> {
+	// System.out.println("the base url is " + baseUrl);
+	// Account account = accountRepository.findByUsername("company_filler");
+
+	// };
+	// }
 
 	// @Bean
 	// public CommandLineRunner commandLineRunner() {

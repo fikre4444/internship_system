@@ -43,6 +43,9 @@ public class AccountService {
   @Autowired
   private JwtService jwtService;
 
+  @Autowired
+  private String baseUrl;
+
   public AccountDto getAccountDto() {
 
     val accountDto = AccountDto.builder();
@@ -131,7 +134,7 @@ public class AccountService {
       return Map.of("result", "failure", "message",
           "You don't have an email for your account, contact your administrator!");
     }
-    String link = "http://10.10.11.215:5173/reset-password?token=" + passwordResetToken;
+    String link = baseUrl + "/reset-password?token=" + passwordResetToken;
     String content = "Dear " + account.getFirstName()
         + ", you have requested a password reset request click the link below to reset the password";
     content += "<br>If you haven't requested this, ignore the message.<br>";
