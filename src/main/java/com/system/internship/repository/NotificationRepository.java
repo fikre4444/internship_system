@@ -15,6 +15,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
   List<Notification> findAllBySentTo(Account account);
 
+  List<Notification> findTop10BySentToOrderByIdDesc(Account account);
+
   @Transactional
   void deleteBySentBy(Account account);
 

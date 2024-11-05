@@ -1,6 +1,10 @@
 package com.system.internship.controller;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,6 +62,26 @@ public class AccountController {
   @GetMapping("/get-notifications")
   public ResponseEntity<?> getNotifications() {
     return ResponseEntity.ok(notificationService.getNotifications());
+  }
+
+  @PutMapping("/mark-notification-as-read")
+  public ResponseEntity<?> markNotificationAsRead(@RequestParam Long notificationId) {
+    Map<String, Object> result = notificationService.markNotificationAsRead(notificationId);
+    String resultResponse = (String) result.get("result");
+    if (((String) result.get("result")).equalsIgnoreCase("success")) {
+      return ResponseEntity.ok(result); // return if successfull
+    }
+    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+  }
+
+  @PutMapping("/mark-all-as-read")
+  public ResponseEntity<?> markAllAsRead(@RequestBody List<Long> notificationIds) {
+    Map<String, Object> result = notificationService.markAllAsRead(notificationIds);
+    String resultResponse = (String) result.get("result");
+    if (((String) result.get("result")).equalsIgnoreCase("success")) {
+      return ResponseEntity.ok(result); // return if successfull
+    }
+    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
   }
 
 }
