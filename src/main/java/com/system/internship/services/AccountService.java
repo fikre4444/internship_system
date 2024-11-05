@@ -13,6 +13,7 @@ import com.system.internship.dto.AccountDto;
 import com.system.internship.dto.PasswordUpdateDto;
 import com.system.internship.exception.UsernameNotFoundException;
 import com.system.internship.repository.AccountRepository;
+import com.system.internship.repository.ChatIdRepository;
 import com.system.internship.repository.OpenPasswordRepository;
 import com.system.internship.util.LazyNullifier;
 import com.system.internship.util.PasswordGenerator;
@@ -45,6 +46,9 @@ public class AccountService {
 
   @Autowired
   private String baseUrl;
+
+  @Autowired
+  private ChatIdRepository chatRepo;
 
   public AccountDto getAccountDto() {
 
@@ -166,4 +170,14 @@ public class AccountService {
     }
     return account;
   }
+
+  public boolean checkTelegramRegisteration(String username) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(username);
+    if (!accountOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
+    }
+    Account account = accountOpt.get();
+    return chatRepo.existsByAssociatedAccount(account);
+  }
+
 }

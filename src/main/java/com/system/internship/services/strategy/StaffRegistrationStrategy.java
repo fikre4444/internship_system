@@ -150,4 +150,38 @@ public class StaffRegistrationStrategy implements AccountRegistrationStrategy {
 
   }
 
+  public RegisterResponseDto registerCustomMultiple(List<RegisterRequestCustomBodyDto> registerDtoMultiple) {
+    List<Staff> registeredStaff = new ArrayList<>();
+    List<Staff> existingStaff = new ArrayList<>();
+    List<Student> existingStudents = new ArrayList<>();
+    List<OpenPassword> openPasswords = new ArrayList<>();
+    val rrd = RegisterResponseDto.builder();
+    registerDtoMultiple.forEach(registerDto -> {
+      Staff staff = convertFromCustomToStaff(registerDto);
+      Account account = accountService.checkAccountExistenceFromUsername(staff.getUsername());
+      if (account == null) { // if account doesn't exist
+        String generatedPassword = PasswordGenerator.generateRandomPassword(8);
+        staff.setPassword(passwordEncoder.encode(generatedPassword));
+        OpenPassword op = OpenPassword.builder().password(generatedPassword).account(staff).build();
+        // student = studentRepository.save(student);
+        registeredStaff.add(staff); // instead of saving add to list
+        // openPasswordRepository.save(op);
+        openPasswords.add(op);
+      } else {
+        if (account instanceof Staff) {
+          existingStaff.add((Staff) account);
+          // rrd.existingStudents(List.of((Student) account));
+        } else if (account instanceof Student) {
+          existingStudents.add((Student) account);
+        }
+      }
+    });
+    staffRepository.saveAll(registeredStaff); // save the students
+    openPasswordRepository.saveAll(openPasswords); // save the staff
+    rrd.registeredStaffs(registeredStaff);
+    rrd.existingStaffs(existingStaff);
+    rrd.existingStudents(existingStudents);
+    return rrd.build();
+  }
+
 }

@@ -18,6 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.data.domain.Sort;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import com.system.internship.domain.Account;
 import com.system.internship.domain.OpenPassword;
 import com.system.internship.domain.Role;
@@ -463,9 +469,30 @@ public class AdministratorService {
     return result;
   }
 
-  public List<Account> getAllAccounts() {
-    List<Account> accounts = accountRepository.findAll();
-    return accounts;
+  public Page<Account> getAllAccounts(int page, int size) {
+    Sort sort = Sort.by("id").ascending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+    return accountRepository.findAll(pageable);
+  }
+
+  public Map<String, Object> registerStudentByTable(List<RegisterRequestCustomBodyDto> rows) {
+    System.out.println(rows);
+    RegisterResponseDto registerResponseDto = null;
+    AccountRegistrationStrategy strategy = strategies.get(TypeUserEnum.STUDENT);
+    registerResponseDto = strategy.registerCustomMultiple(rows);
+    addThePasswords(registerResponseDto); // adds the open password to the accounts if there is uno
+    return Map.of("result", "success", "message", "The Students have been registered successfully!", "response",
+        registerResponseDto);
+  }
+
+  public Map<String, Object> registerStaffByTable(List<RegisterRequestCustomBodyDto> rows) {
+    System.out.println(rows);
+    RegisterResponseDto registerResponseDto = null;
+    AccountRegistrationStrategy strategy = strategies.get(TypeUserEnum.STAFF);
+    registerResponseDto = strategy.registerCustomMultiple(rows);
+    addThePasswords(registerResponseDto); // adds the open password to the accounts if there is uno
+    return Map.of("result", "success", "message", "The Staff members have been registered successfully!", "response",
+        registerResponseDto);
   }
 
 }

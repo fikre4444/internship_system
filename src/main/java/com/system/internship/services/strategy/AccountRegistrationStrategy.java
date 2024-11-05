@@ -21,6 +21,8 @@ public interface AccountRegistrationStrategy {
 
   RegisterResponseDto registerCustom(RegisterRequestCustomBodyDto registerDto);
 
+  RegisterResponseDto registerCustomMultiple(List<RegisterRequestCustomBodyDto> registerDtoMultiple);
+
   default void generateAndSavePasswordsForNewUsers(List<? extends Account> accounts, JpaRepository repository,
       OpenPasswordRepository openPasswordRepository, PasswordEncoder passwordEncoder) {
     List<OpenPassword> generatedOpenPasswords = new ArrayList<>();

@@ -37,6 +37,11 @@ public class StudentController {
     return ResponseEntity.ok(studentService.getInternships(username));
   }
 
+  @GetMapping("/get-self-secured-internship")
+  public ResponseEntity<?> getSelfSecuredInternship(@RequestParam String username) {
+    return ResponseEntity.ok(studentService.getSelfSecuredInternship(username));
+  }
+
   @PostMapping("/apply-internships")
   public ResponseEntity<?> applyInternships(@RequestBody InternshipApplicationDto applications) {
     return ResponseEntity.ok(studentService.applyInternships(applications));

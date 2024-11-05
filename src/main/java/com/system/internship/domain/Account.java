@@ -10,10 +10,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.system.internship.enums.GenderEnum;
+import com.system.internship.services.AccountListener;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -41,6 +43,7 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "account")
 @Inheritance(strategy = InheritanceType.JOINED)
 @SuperBuilder
+@EntityListeners(AccountListener.class)
 public class Account implements UserDetails {
 
   @Id

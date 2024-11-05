@@ -15,6 +15,7 @@ import com.system.internship.domain.Account;
 import com.system.internship.dto.LoginDto;
 import com.system.internship.dto.PasswordUpdateDto;
 import com.system.internship.services.AccountService;
+import com.system.internship.services.NotificationService;
 
 @RestController
 @RequestMapping("/api/account")
@@ -22,6 +23,9 @@ public class AccountController {
 
   @Autowired
   private AccountService accountService;
+
+  @Autowired
+  private NotificationService notificationService;
 
   @GetMapping("/get-account")
   public ResponseEntity<?> getAccountDetails() {
@@ -44,6 +48,16 @@ public class AccountController {
     System.out.println(loginDto.getPassword());
     return ResponseEntity.ok(accountService.resetPasswordThroughEmail(loginDto.getUsername(), loginDto.getPassword()));
 
+  }
+
+  @GetMapping("/check-telegram-registeration")
+  public ResponseEntity<?> checkTelegramRegisteration(@RequestParam String username) {
+    return ResponseEntity.ok(accountService.checkTelegramRegisteration(username));
+  }
+
+  @GetMapping("/get-notifications")
+  public ResponseEntity<?> getNotifications() {
+    return ResponseEntity.ok(notificationService.getNotifications());
   }
 
 }

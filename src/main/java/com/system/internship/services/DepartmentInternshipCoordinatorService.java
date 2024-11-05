@@ -32,6 +32,9 @@ public class DepartmentInternshipCoordinatorService {
   @Autowired(required = false)
   TelegramBot telegramBot;
 
+  @Autowired
+  private NotificationService notificationService;
+
   public Map<String, Object> addSelfInternship(Map<String, String> requestBody) {
     // TODO fix it when you add the same self internship
     // maybe just don't save it and then just increment the noOfStudents
@@ -130,6 +133,11 @@ public class DepartmentInternshipCoordinatorService {
         String firstName = student.getFirstName();
         String companyName = student.getAssignedInternship().getCompanyName();
         String location = student.getAssignedInternship().getLocation();
+        String notificationContent = "Dear " + firstName
+            + " your department coordinator has added the following internships that you have provided for them";
+        notificationContent += " The company Name is " + companyName + " the location is " + location;
+        Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        notificationService.sendNotificationToSingle(currentAccount, student, notificationContent);
         String message = "Dear <b>" + firstName
             + "</b>, Your Department Coordinator has Added the following Internship (that you have provided to them) for you =>\n\n<b>Company Name:"
             + companyName + "\nLocation:" + location
@@ -138,10 +146,15 @@ public class DepartmentInternshipCoordinatorService {
           return Map.of("result", "failure", "message",
               "You are not connected to the internet, message not sent through telegram.");
         }
-        telegramBot.sendMessage(chatId, message);
+        // telegramBot.sendMessage(chatId, message);
+        sendTelegramMethod(chatId, message);
       }
     }
     return Map.of("result", "success", "message", "The Student Has been notified!");
+  }
+
+  public void sendTelegramMethod(long chatId, String message) {
+    telegramBot.sendMessage(chatId, message);
   }
 
 }

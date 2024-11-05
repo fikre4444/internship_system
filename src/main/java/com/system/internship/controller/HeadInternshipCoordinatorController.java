@@ -79,4 +79,14 @@ public class HeadInternshipCoordinatorController {
     return ResponseEntity.ok(hics.approveCompanyFilledInternships(internshipApprovalDto));
   }
 
+  @PostMapping("/notify-students-to-apply")
+  public ResponseEntity<?> notifyStudentsToApply(@RequestParam String department, @RequestParam String senderUsername) {
+    return ResponseEntity.ok(hics.notifyStudentsToApply(department, senderUsername));
+  }
+
+  @GetMapping("/get-internship-placements")
+  public ResponseEntity<?> getInternshipPlacements(@RequestParam String department) {
+    return ResponseEntity.ok(hics.getInternshipPlacements(department));
+  }
+
 }

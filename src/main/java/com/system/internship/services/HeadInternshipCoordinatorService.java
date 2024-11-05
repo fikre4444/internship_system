@@ -11,8 +11,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.system.internship.domain.Account;
 import com.system.internship.domain.CompanyFilledInternshipOpportunity;
 import com.system.internship.domain.InternshipApplication;
 import com.system.internship.domain.InternshipOpportunity;
@@ -23,6 +25,7 @@ import com.system.internship.dto.InternshipApprovalDto;
 import com.system.internship.dto.InternshipChangeRequestDto;
 import com.system.internship.dto.InternshipOpportunityDto;
 import com.system.internship.enums.DepartmentEnum;
+import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.CompanyFilledInternshipOpportunityRepository;
 import com.system.internship.repository.InternshipApplicationRepository;
 import com.system.internship.repository.InternshipOpportunityRepository;
@@ -32,6 +35,9 @@ import com.system.internship.util.HashUtil;
 
 @Service
 public class HeadInternshipCoordinatorService {
+
+  @Autowired
+  private AccountRepository accountRepository;
 
   @Autowired
   private InternshipOpportunityRepository ioRepo;
@@ -56,6 +62,9 @@ public class HeadInternshipCoordinatorService {
 
   @Autowired
   private CompanyFilledInternshipOpportunityRepository cfioRepo;
+
+  @Autowired
+  private NotificationService notificationService;
 
   public Map<String, Object> saveInternshipOpportunity(InternshipOpportunityDto iod) {
     InternshipOpportunity io = convertToInternshipOpportunity(iod);
@@ -166,7 +175,7 @@ public class HeadInternshipCoordinatorService {
       System.out.println();
     });
 
-    tempRepo.saveAll(temporaryPlacements);
+    // tempRepo.saveAll(temporaryPlacements);
     List<TemporaryPlacement> temporaryPlacementsEssentials = getImportantDetails(temporaryPlacements);
 
     return Map.of("result", "success", "message", "Students Have been placed successfully.", "temporaryPlacements",
@@ -179,7 +188,6 @@ public class HeadInternshipCoordinatorService {
       Student student = temporaryPlacement.getStudent();
       student.setPassword(null);
       student.setRoles(null);
-      student.setDepartment(null);
       student.setStream(null);
       student.getInternshipApplications().forEach(internshipApplication -> {
         internshipApplication.setStudent(null);
@@ -200,6 +208,8 @@ public class HeadInternshipCoordinatorService {
     // how to check that
     DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
     List<Student> students = studentRepo.findByDepartment(departmentEnum);
+    if (students.size() < 1)
+      return false;
     for (Student student : students) {
       if (student.getInternshipApplications().size() < 1) {
         return false;
@@ -302,6 +312,27 @@ public class HeadInternshipCoordinatorService {
     cfioRepo.deleteAllById(approvedIds);
     cfioRepo.deleteAll(rejectedOnes);
     return Map.of("result", "ok", "message", "The Internships have been approved successfully");
+  }
+
+  public boolean notifyStudentsToApply(String department, String senderUsername) {
+    Optional<Account> accountOpt = accountRepository.findByUsername(senderUsername);
+    Account currentAccount = accountOpt.get();
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
+    List<Student> students = studentRepo.findByDepartment(departmentEnum);
+    String content = "Dear students, I am sending this notification to remind you to apply to the intenrship opportunities that i have posted for you.";
+    content += "In order for you to be assigned to internship opportunities, you need to apply. For those of you who have applied, igonre this message.";
+    notificationService.sendNotificationsToMultiple(currentAccount, students, content);
+    return true;
+  }
+
+  public Map<String, Object> getInternshipPlacements(String department) {
+    // #TODO might need to refactor later to incorporate the self secured
+    DepartmentEnum departmentEnum = DepartmentEnum.valueOf(department);
+    List<TemporaryPlacement> temps = tempRepo.findAllByStudent_Department(departmentEnum);
+    List<TemporaryPlacement> temporaryPlacementsEssentials = getImportantDetails(temps);
+    return Map.of("result", "success", "message", "Students Have been placed successfully.", "temporaryPlacements",
+        temporaryPlacementsEssentials);
+
   }
 
 }

@@ -24,6 +24,7 @@ import com.system.internship.dto.RegisterRequestBodyDto;
 import com.system.internship.dto.RegisterRequestCustomBodyDto;
 import com.system.internship.dto.RegisterResponseDto;
 import com.system.internship.dto.RoleRequest;
+import com.system.internship.dto.TableDto;
 import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.AccountRepository;
@@ -159,9 +160,26 @@ public class AdministratorController {
     return ResponseEntity.ok(administratorService.getStats());
   }
 
+  // @GetMapping("/get-all-accounts")
+  // public ResponseEntity<?> getAllAccounts() {
+  // return ResponseEntity.ok(administratorService.getAllAccounts());
+  // }
+
   @GetMapping("/get-all-accounts")
-  public ResponseEntity<?> getAllAccounts() {
-    return ResponseEntity.ok(administratorService.getAllAccounts());
+  public ResponseEntity<?> getAllAccounts(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    return ResponseEntity.ok(administratorService.getAllAccounts(page, size));
+  }
+
+  @PostMapping("/register-students-by-table")
+  public ResponseEntity<?> registerStudentsByTable(@RequestBody List<RegisterRequestCustomBodyDto> rows) {
+    return ResponseEntity.ok(administratorService.registerStudentByTable(rows));
+  }
+
+  @PostMapping("/register-staff-by-table")
+  public ResponseEntity<?> registerStaffByTable(@RequestBody List<RegisterRequestCustomBodyDto> rows) {
+    return ResponseEntity.ok(administratorService.registerStaffByTable(rows));
   }
 
 }

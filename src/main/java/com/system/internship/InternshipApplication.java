@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,12 +17,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.system.internship.domain.Account;
 import com.system.internship.domain.InternshipOpportunity;
+import com.system.internship.domain.Notification;
 import com.system.internship.domain.Student;
 import com.system.internship.enums.DepartmentEnum;
 import com.system.internship.enums.RoleEnum;
 import com.system.internship.repository.AccountRepository;
 import com.system.internship.repository.InternshipApplicationRepository;
 import com.system.internship.repository.InternshipOpportunityRepository;
+import com.system.internship.repository.NotificationRepository;
 import com.system.internship.repository.StudentRepository;
 import com.system.internship.services.RoleService;
 import java.util.Set;
@@ -50,9 +54,50 @@ public class InternshipApplication {
 	// @Autowired
 	// private String baseUrl;
 
+	@Autowired
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private NotificationRepository notificationRepository;
+
 	public static void main(String[] args) {
 		SpringApplication.run(InternshipApplication.class, args);
 	}
+
+	@Bean
+	public CommandLineRunner commandLineRunner() {
+		return args -> {
+			// Account account = accountRepository.findById(859L).get();
+			// LocalDateTime currentTime = LocalDateTime.now();
+
+			// Notification notification =
+			// Notification.builder().createdDate(currentTime).sentBy(account)
+			// .sentTo(account).content("I am sneing this
+			// notitfication").status("something").build();
+
+			// Notification notification2 =
+			// Notification.builder().createdDate(currentTime).sentBy(account)
+			// .sentTo(account).content("I am sneing this
+			// notitfanotherlsjkflskdjflsdkjfication").status("something")
+			// .build();
+
+			// notificationRepository.save(notification);
+			// notificationRepository.save(notification2);
+		};
+	}
+
+	// @Bean
+	// public CommandLineRunner commandLineRunner() {
+	// return args -> {
+	// EntityA entityA = entityARepository.findById(1L).get();
+	// entityARepository.delete(entityA);
+	// // EntityA entityA = EntityA.builder().a("lkdjf").build();
+	// // entityARepository.save(entityA);
+
+	// // EntityB entityB = EntityB.builder().entityA(entityA).build();
+	// // entityBRepository.save(entityB);
+	// };
+	// }
 
 	// @Bean
 	// public CommandLineRunner commandLineRunner() {

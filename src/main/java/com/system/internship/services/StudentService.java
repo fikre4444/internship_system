@@ -107,4 +107,13 @@ public class StudentService {
     return muProvidedInternships;
   }
 
+  public Map<String, Object> getSelfSecuredInternship(String username) {
+    Optional<Student> studentOpt = studentRepo.findByUsername(username);
+    if (!studentOpt.isPresent()) {
+      throw new UsernameNotFoundException(username);
+    }
+    Student student = studentOpt.get();
+    return Map.of("result", "success", "selfInternship", student.getAssignedInternship());
+  }
+
 }
