@@ -11,7 +11,8 @@ public enum DepartmentEnum {
   CIVIL("Civil Engineering"),
   MECHANICAL("Mechanical Engineering"),
   ELECTRICAL("Electrical Engineering"),
-  ARCHITECTURE("Architecture");
+  ARCHITECTURE("Architecture"),
+  TEXTILE("Textile Engineering");
 
   private String departmentName;
 
